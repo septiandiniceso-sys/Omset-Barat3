@@ -1,0 +1,1543 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Executive Sales & Shrinkage Dashboard - Area Barat 3</title>
+  <script>
+    // ============================================================================
+    // WAJIB DIISI: TEMPEL URL WEB APP HASIL DEPLOY KODE.GS DI ANTARA TANDA KUTIP
+    // Contoh: var GAS_API_URL = "https://script.google.com/macros/s/AKfy.../exec";
+    // ============================================================================
+    var GAS_API_URL = "https://script.google.com/macros/s/AKfycbyiZJVV91f9cECVWQafNehC-BmHEChwb1cBTekK-TpN8XEAt_mhyhB-klNhwO2jTiaW/exec";
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #eef2f6; color: #0f172a; }
+    .top-bar-dark { background: #1e293b; border-bottom: 1px solid #334155; }
+    .crimson-banner { background: linear-gradient(90deg, #7f1d1d 0%, #991b1b 50%, #7f1d1d 100%); }
+    .card-panel { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 0.85rem; box-shadow: 0 2px 6px -1px rgba(15,23,42,0.06); transition: box-shadow 0.2s, border-color 0.2s; }
+    .card-panel:hover { box-shadow: 0 6px 14px -3px rgba(15,23,42,0.1); border-color: #cbd5e1; }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    @media print {
+      @page { size: A4 portrait; margin: 10mm; }
+      body { background-color: #ffffff !important; color: #0f172a !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; padding-bottom: 0 !important; }
+      .no-print { display: none !important; }
+      #sidak-print-sheet { box-shadow: none !important; border: none !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; width: 100% !important; }
+      .avoid-break { page-break-inside: avoid; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-20">
+  <div id="login-modal" class="no-print fixed inset-0 bg-slate-900/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+    <div class="bg-white rounded-2xl max-w-md w-full p-8 shadow-2xl space-y-5 border border-slate-200">
+      <div class="text-center">
+        <span class="px-3 py-1 rounded-full text-[10px] font-extrabold bg-red-50 text-red-700 tracking-widest uppercase border border-red-200">BARAT 3 PORTAL SECURITY</span>
+        <h2 class="text-2xl font-black text-slate-900 mt-3 tracking-tight">Login Dashboard</h2>
+        <p class="text-xs text-slate-500 mt-1 font-medium">Masukkan Email & Password terdaftar</p>
+      </div>
+      <div class="space-y-3">
+        <div class="space-y-1">
+          <label class="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">Alamat Email</label>
+          <input type="email" id="login-email" placeholder="contoh@niceso.co.id" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm text-slate-900 font-medium focus:ring-2 focus:ring-red-600 focus:border-red-600 transition outline-none">
+        </div>
+        <div class="space-y-1">
+          <label class="block text-[11px] font-extrabold text-slate-600 uppercase tracking-wider">Password</label>
+          <input type="password" id="login-password" placeholder="Masukkan password..." onkeydown="if(event.key==='Enter')processLogin()" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-sm text-slate-900 font-medium focus:ring-2 focus:ring-red-600 focus:border-red-600 transition outline-none">
+        </div>
+        <p id="login-error" class="text-red-600 text-[11px] mt-1.5 hidden font-semibold"></p>
+      </div>
+      <button onclick="processLogin()" id="btn-login" class="w-full bg-red-700 hover:bg-red-800 active:scale-95 text-white text-sm font-bold p-3.5 rounded-xl shadow-md transition flex items-center justify-center gap-2">
+        <span id="login-text">Masuk Sekarang</span>
+        <svg id="login-spinner" class="hidden w-4 h-4 animate-spin text-white" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+      </button>
+    </div>
+  </div>
+
+  <header class="top-bar-dark sticky top-0 z-40 no-print text-white px-4 py-3.5 md:px-8 shadow-md">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <div class="flex flex-wrap items-center gap-3">
+        <div class="flex items-center gap-2 pr-2 border-r border-slate-600">
+          <span class="w-2.5 h-2.5 rounded-sm bg-red-600 inline-block"></span>
+          <h1 class="text-sm md:text-base font-black text-white tracking-wider uppercase">BARAT 3 PORTAL</h1>
+        </div>
+        <div class="flex items-center gap-1.5">
+          <button id="tab-btn-main" onclick="switchViewMode('MAIN')" class="px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-red-600 text-white shadow transition">📊 Dashboard Area</button>
+          <button id="tab-btn-sidak" onclick="switchViewMode('SIDAK')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-700 transition">📋 Lembar Sidak Toko</button>
+        </div>
+      </div>
+      <div class="flex flex-wrap items-center gap-2">
+        <span id="user-role-badge" class="hidden px-2.5 py-1 bg-slate-800 border border-slate-600 rounded-lg text-[11px] font-bold text-amber-300"></span>
+        <button onclick="logoutAccount()" class="px-3 py-1.5 bg-slate-700 hover:bg-red-700 text-xs font-bold rounded-lg text-slate-200 hover:text-white border border-slate-600 transition">Keluar</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="max-w-7xl mx-auto p-4 md:p-6 space-y-5">
+    <section class="card-panel no-print p-4 space-y-3">
+      <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200">
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="reloadServerData()" class="px-3.5 py-1.5 bg-sky-600 hover:bg-sky-700 text-xs font-bold rounded-lg text-white shadow-sm transition">🔄 Sinkronkan Data</button>
+          <button onclick="window.print()" class="px-3.5 py-1.5 bg-slate-600 hover:bg-slate-700 text-xs font-bold rounded-lg text-white shadow-sm transition">🖨️ Cetak / PDF</button>
+        </div>
+        <span class="text-[11px] font-bold text-slate-500">Konsolidasi Rekap Penjualan, Susut, Return, Promo & Pengeluaran</span>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-7 gap-3">
+        <div><label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Tahun</label><select id="filter-tahun" onchange="applyFilter()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold rounded-lg p-2 outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600"></select></div>
+        <div><label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Bulan</label><select id="filter-bulan" onchange="applyFilter()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold rounded-lg p-2 outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600"><option value="ALL" selected>Semua</option></select></div>
+        <div><label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Supervisor</label><select id="filter-spv" onchange="applyFilter()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold rounded-lg p-2 outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600"><option value="ALL">Semua SPV</option></select></div>
+        <div><label class="block text-[11px] font-bold text-red-700 uppercase tracking-wider mb-1">Pilih Toko</label><select id="filter-store" onchange="applyFilter()" class="w-full bg-red-50/40 border border-red-300 text-slate-900 text-xs font-bold rounded-lg p-2 outline-none focus:ring-1 focus:ring-red-600 focus:border-red-600"><option value="ALL">Semua Toko</option></select></div>
+        <div><label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Dari Tgl</label><input type="date" id="filter-start" onchange="applyFilter()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold rounded-lg p-1.5 outline-none focus:ring-1 focus:ring-red-600"></div>
+        <div><label class="block text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1">Sampai Tgl</label><input type="date" id="filter-end" onchange="applyFilter()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold rounded-lg p-1.5 outline-none focus:ring-1 focus:ring-red-600"></div>
+        <div class="flex items-end"><button onclick="applyFilter()" class="w-full bg-red-700 hover:bg-red-800 text-white text-xs font-extrabold rounded-lg p-2 transition shadow-sm">Terapkan</button></div>
+      </div>
+    </section>
+
+    <div id="loading" class="no-print flex flex-col items-center justify-center py-20 hidden">
+      <div class="w-10 h-10 border-4 border-red-700 border-t-transparent rounded-full animate-spin"></div>
+      <p class="mt-3 text-slate-600 text-xs font-bold">Memuat & menyinkronkan data dari server...</p>
+    </div>
+
+    <main id="content" class="hidden space-y-5">
+      <div class="crimson-banner text-white px-6 py-4 rounded-xl shadow-md text-center border-b-4 border-red-950">
+        <h2 id="exec-banner-title" class="text-base md:text-lg font-black uppercase tracking-wide">EXECUTIVE DASHBOARD SALES & SHRINKAGE — AREA BARAT 3</h2>
+        <p id="exec-banner-sub" class="text-[11px] text-red-100 font-medium mt-0.5">Monitoring Performa Cabang, Kualitas Transaksi, Susut, Retur, Promo & Pengeluaran</p>
+      </div>
+
+      <div id="red-zone-panel" class="hidden card-panel p-5 bg-red-50 border border-red-300 border-l-4 border-l-red-700 shadow-sm"></div>
+
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="lg:col-span-2 card-panel p-5 border-l-4 border-l-red-700">
+          <h3 class="text-xs font-extrabold text-red-800 uppercase tracking-widest mb-2 flex items-center gap-2">
+            <svg class="w-4 h-4 text-red-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> Executive Summary
+          </h3>
+          <p id="exec-summary-text" class="text-[13px] font-medium text-slate-700 leading-relaxed pr-4">Memuat ringkasan otomatis...</p>
+        </div>
+        <div class="card-panel p-5 bg-gradient-to-br from-amber-50 to-white border border-amber-300 border-l-4 border-l-amber-500">
+          <div class="flex justify-between items-start">
+            <div>
+              <span class="text-[10px] font-black text-amber-800 uppercase tracking-widest bg-amber-100 px-2.5 py-1 rounded border border-amber-300">🏆 Store of the Month</span>
+              <h3 id="sotm-name" class="text-lg font-black text-slate-900 mt-2.5 leading-tight">-</h3>
+              <p id="sotm-spv" class="text-[11px] font-semibold text-slate-500 mt-0.5">-</p>
+            </div>
+            <div id="sotm-growth" class="text-xs font-black bg-emerald-100 text-emerald-800 px-2 py-1 rounded border border-emerald-200">+0%</div>
+          </div>
+          <div class="mt-4 pt-3 border-t border-amber-200 flex justify-between items-end">
+            <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Total Penjualan</span>
+            <span id="sotm-sales" class="text-xl font-black text-red-800">Rp 0</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="card-panel p-5 border-l-4 border-l-red-700">
+          <div class="flex justify-between items-center"><span class="text-[11px] font-extrabold text-slate-500 uppercase">Realisasi Penjualan</span><span id="kpi-yoy-badge" class="text-[10px] font-bold px-2 py-0.5 rounded"></span></div>
+          <h2 id="kpi-sales" class="text-2xl font-black text-slate-900 mt-1.5">Rp 0</h2>
+          <div class="mt-3 flex justify-between text-xs"><span class="text-slate-500 font-medium">Target (+15%):</span><span id="kpi-target" class="font-bold text-slate-800">Rp 0</span></div>
+          <div class="w-full bg-slate-200 rounded-full h-2 mt-2"><div id="target-progress-bar" class="bg-red-700 h-2 rounded-full" style="width: 0%"></div></div>
+          <div class="flex justify-between text-[11px] text-slate-500 mt-1.5 mb-1"><span id="kpi-comp-sales-label">Lalu: Rp 0</span><span id="target-percent-text" class="font-extrabold text-red-700">0% Capai</span></div>
+          <div id="mom-container" class="flex justify-between text-[11px] text-slate-500 mb-2"><span>Bln Lalu: <strong id="kpi-mom-val" class="text-slate-700">Rp 0</strong></span><span id="kpi-mom-badge" class="font-bold"></span></div>
+          <div class="pt-2 border-t border-slate-200 flex justify-between text-[11px] text-slate-500"><span>Proyeksi Akhir Bulan:</span><span id="kpi-forecast" class="font-extrabold text-emerald-700">Rp 0</span></div>
+        </div>
+        <div class="card-panel p-5 border-l-4 border-l-emerald-600">
+          <div class="flex justify-between items-center"><span class="text-[11px] font-extrabold text-slate-500 uppercase">Total Transaksi</span><span id="kpi-trans-badge" class="text-[10px] font-bold px-2 py-0.5 rounded"></span></div>
+          <h2 id="kpi-trans" class="text-2xl font-black text-emerald-700 mt-1.5">0</h2>
+          <div class="mt-3 flex justify-between text-xs"><span class="text-slate-500 font-medium">Tahun Lalu:</span><span id="kpi-comp-trans" class="font-bold text-slate-800">0 Struk</span></div>
+          <div id="mom-trans-container" class="flex justify-between text-[11px] text-slate-500 mt-1.5 mb-2 hidden"><span>Bln Lalu: <strong id="kpi-mom-trans-val" class="text-slate-700">0 Struk</strong></span><span id="kpi-mom-trans-badge" class="font-bold"></span></div>
+          <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs"><span class="text-slate-500 font-medium">ATV:</span><span id="kpi-atv" class="font-extrabold text-sky-700">Rp 0</span></div>
+        </div>
+        <div class="card-panel p-5 border-l-4 border-l-sky-600">
+          <div class="flex justify-between items-center"><span class="text-[11px] font-extrabold text-slate-500 uppercase">Total Unit Terjual</span><span id="kpi-items-badge" class="text-[10px] font-bold px-2 py-0.5 rounded"></span></div>
+          <h2 id="kpi-items" class="text-2xl font-black text-slate-900 mt-1.5">0 Pcs</h2>
+          <div class="mt-3 flex justify-between text-xs"><span class="text-slate-500 font-medium">Tahun Lalu:</span><span id="kpi-comp-items" class="font-bold text-slate-800">0 Pcs</span></div>
+          <div id="mom-items-container" class="flex justify-between text-[11px] text-slate-500 mt-1.5 mb-2 hidden"><span>Bln Lalu: <strong id="kpi-mom-items-val" class="text-slate-700">0 Pcs</strong></span><span id="kpi-mom-items-badge" class="font-bold"></span></div>
+          <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs"><span class="text-slate-500 font-medium">UPT:</span><span id="kpi-upt" class="font-extrabold text-teal-700">0.0 Pcs</span></div>
+        </div>
+        <div class="card-panel p-5 border-l-4 border-l-amber-500">
+          <div class="flex justify-between items-center"><span class="text-[11px] font-extrabold text-slate-500 uppercase">Total Shrinkage</span><span id="kpi-shrink-badge" class="text-[10px] font-bold px-2 py-0.5 rounded"></span></div>
+          <h2 id="kpi-shrink" class="text-2xl font-black text-red-700 mt-1.5">Rp 0</h2>
+          <div class="mt-3 flex justify-between text-xs"><span class="text-slate-500 font-medium">Rasio Susut / Omzet:</span><span id="kpi-shrink-pct" class="font-extrabold text-red-700">0.00%</span></div>
+          <div id="mom-shrink-container" class="flex justify-between text-[11px] text-slate-500 mt-1.5 mb-2 hidden"><span>Bln Lalu: <strong id="kpi-mom-shrink-val" class="text-slate-700">Rp 0</strong></span><span id="kpi-mom-shrink-badge" class="font-bold"></span></div>
+          <div class="mt-2 pt-2 border-t border-slate-200 text-[11px] text-slate-500 font-semibold">Toleransi Ritel: &lt; 0.50%</div>
+        </div>
+      </section>
+
+      <div id="sss-panel" class="card-panel p-4 bg-gradient-to-r from-emerald-50/70 to-white border border-emerald-200 border-l-4 border-l-emerald-600">
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+          <div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-widest">Analisis LFL (Like-for-Like)</span>
+            <h3 class="text-xs font-bold text-slate-700 mt-1.5">Pertumbuhan Toko Aktif Penuh (Mengisolasi Toko Baru & Relokasi)</h3>
+          </div>
+          <div class="flex gap-6">
+            <div class="text-right">
+              <span class="text-[10px] text-slate-500 block uppercase font-bold">YoY LFL Murni</span>
+              <span id="sss-yoy-val" class="text-lg font-black text-emerald-700">+0.0%</span>
+            </div>
+            <div class="text-right border-l border-slate-200 pl-6 flex flex-col items-end justify-start">
+              <span class="text-[10px] text-slate-500 block uppercase font-bold">Kontribusi Toko Baru/Relokasi</span>
+              <span id="sss-new-val" class="text-lg font-black text-sky-700 leading-none">Rp 0</span>
+              <div id="sss-new-stores" class="text-[10px] bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded font-bold mt-1.5 text-right hidden max-w-[180px] leading-tight"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="card-panel p-5 border-l-4 border-l-amber-500">
+          <div class="flex justify-between"><span class="text-[11px] font-extrabold text-slate-500 uppercase">Omset Toko Terendah</span><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-50 border border-amber-200 text-amber-800">Lowest Store</span></div>
+          <div class="flex justify-between mt-2"><h2 id="kpi-lowest-name" class="text-xl font-black text-slate-900">-</h2><span id="kpi-lowest-sales" class="text-lg font-extrabold text-amber-700">Rp 0</span></div>
+          <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between text-[11px] text-slate-500"><span>Supervisor: <strong id="kpi-lowest-spv" class="text-slate-800">-</strong></span><span class="font-semibold text-amber-700">Perlu Evaluasi</span></div>
+        </div>
+        <div class="card-panel p-5 border-l-4 border-l-teal-600">
+          <div class="flex justify-between"><span class="text-[11px] font-extrabold text-slate-500 uppercase">Benchmark ATV & UPT</span><span id="kpi-basket-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700">Benchmark</span></div>
+          <div class="grid grid-cols-2 gap-4 mt-2">
+            <div><span class="text-[11px] text-slate-500 block font-medium">ATV:</span><span id="kpi-basket-atv" class="text-lg font-black text-sky-700">Rp 0</span></div>
+            <div><span class="text-[11px] text-slate-500 block font-medium">UPT:</span><span id="kpi-basket-upt" class="text-lg font-black text-teal-700">0.0 Pcs</span></div>
+          </div>
+          <div class="mt-2 pt-2 border-t border-slate-200 text-[11px] font-bold" id="kpi-basket-status">-</div>
+        </div>
+      </section>
+
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="card-panel p-5 border-t-4 border-t-amber-500">
+          <div class="flex justify-between items-center"><span class="text-[11px] font-extrabold text-slate-500 uppercase">Total Return Barang (Approved)</span><span id="kpi-return-pct-badge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200">0.00%</span></div>
+          <h2 id="kpi-return-val" class="text-2xl font-black text-amber-700 mt-1.5">Rp 0</h2>
+          <div class="mt-3 flex justify-between text-xs"><span class="text-slate-500">Total Kuantitas Return:</span><span id="kpi-return-qty" class="font-bold text-slate-800">0 Pcs</span></div>
+          <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs"><span class="text-slate-500 font-medium">Persentase Return:</span><span id="kpi-return-pct" class="font-extrabold text-amber-700">0.00%</span></div>
+        </div>
+        <div class="card-panel p-5 border-t-4 border-t-teal-600">
+          <div class="flex justify-between items-center"><span class="text-[11px] font-extrabold text-slate-500 uppercase">Total Pengeluaran Toko</span><span id="kpi-expense-pct-badge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-teal-50 text-teal-800 border border-teal-200">0.00%</span></div>
+          <h2 id="kpi-expense-val" class="text-2xl font-black text-teal-700 mt-1.5">Rp 0</h2>
+          <div class="mt-3 flex justify-between text-xs"><span class="text-slate-500">Frekuensi Pengeluaran:</span><span id="kpi-expense-cnt" class="font-bold text-slate-800">0 Transaksi</span></div>
+          <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs"><span class="text-slate-500 font-medium">Persentase Pengeluaran:</span><span id="kpi-expense-pct" class="font-extrabold text-teal-700">0.00%</span></div>
+        </div>
+        <div class="card-panel p-5 border-t-4 border-t-fuchsia-600 bg-gradient-to-br from-fuchsia-50/40 to-white">
+          <div class="flex justify-between items-center"><span class="text-[11px] font-extrabold text-slate-600 uppercase">Total Diskon / Promo</span><span id="kpi-disc-pct-badge" class="text-[10px] font-extrabold px-2.5 py-0.5 rounded bg-fuchsia-100 text-fuchsia-800 border border-fuchsia-200">0.00% Omset</span></div>
+          <h2 id="kpi-disc-val" class="text-2xl font-black text-fuchsia-700 mt-1.5">Rp 0</h2>
+          <div class="mt-3 flex justify-between text-xs"><span class="text-slate-500">Total Unit Promo:</span><span id="kpi-disc-qty" class="font-bold text-slate-800">0 Pcs</span></div>
+          <div class="mt-2 pt-2 border-t border-slate-200 flex justify-between text-xs"><span class="text-slate-500 font-medium">Persentase Diskon:</span><span id="kpi-disc-pct" class="font-extrabold text-fuchsia-700">0.00%</span></div>
+        </div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Analisis Tren & Kontribusi Penjualan</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="card-panel p-5">
+        <div class="flex flex-col md:flex-row gap-4">
+          <div><span class="text-[11px] font-extrabold text-red-700 uppercase">Top 3 Kontribusi Kategori</span><h3 class="text-sm font-black text-slate-900 mt-0.5">Persentase Omset Terlaris</h3></div>
+          <div id="top-categories-container" class="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full"></div>
+        </div>
+      </section>
+      <section class="card-panel p-5"><div class="flex justify-between mb-4"><h3 class="text-xs font-extrabold text-slate-800 uppercase">Tren Penjualan Harian (YoY)</h3><span id="trend-subtitle" class="text-[11px] font-bold text-slate-500"></span></div><div class="h-72"><canvas id="trendChart"></canvas></div></section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-emerald-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-emerald-200">Heatmap Analisis Beban Kerja Toko (Hari Sibuk)</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="card-panel p-5"><div class="flex justify-between mb-4"><h3 class="text-xs font-extrabold text-slate-800 uppercase">Kepadatan Penjualan Berdasarkan Hari (Senin - Minggu)</h3><span class="text-[11px] font-bold text-slate-500">Rupiah</span></div><div class="h-64"><canvas id="dowChart"></canvas></div></section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Komparasi Kategori Produk</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5"><div class="flex justify-between mb-4"><h3 class="text-xs font-extrabold text-slate-800 uppercase">Komparasi Kategori (Omset)</h3><span class="text-[11px] font-bold text-slate-500">Juta Rp</span></div><div class="h-72"><canvas id="catChart"></canvas></div></div>
+        <div class="card-panel p-5"><div class="flex justify-between mb-4"><h3 class="text-xs font-extrabold text-slate-800 uppercase">Komparasi Kategori (Quantity)</h3><span class="text-[11px] font-bold text-slate-500">Pcs Terjual</span></div><div class="h-72"><canvas id="catQtyChart"></canvas></div></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Peringkat Omset Cabang</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5"><h3 class="text-xs font-extrabold text-red-800 uppercase mb-3">Top 10 Toko Tertinggi</h3><div class="h-64"><canvas id="topStoreChart"></canvas></div></div>
+        <div class="card-panel p-5"><h3 class="text-xs font-extrabold text-amber-700 uppercase mb-3">Bottom 10 Toko Terendah</h3><div class="h-64"><canvas id="bottomStoreChart"></canvas></div></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Matriks Kuadran Belanja & Loss Alert</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5"><h3 class="text-xs font-extrabold text-sky-800 uppercase mb-1">Bubble Matrix (UPT vs ATV)</h3><p class="text-[11px] text-slate-500 mb-3">X: UPT | Y: ATV | Size: Omset</p><div class="h-64"><canvas id="bubbleChart"></canvas></div></div>
+        <div class="card-panel p-5"><h3 class="text-xs font-extrabold text-red-700 uppercase mb-1">Top 5 Toko Susut Tertinggi</h3><p class="text-[11px] text-slate-500 mb-3">Loss Alert</p><div class="divide-y divide-slate-200" id="top-shrink-list"></div></div>
+      </section>
+     <div class="flex items-center gap-4 mt-10 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Peringkat ATP (ATV) Per Struk</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5 border-t-4 border-t-sky-600"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-sky-800 uppercase">5 Toko ATP (ATV) Tertinggi</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800">Highest ATV</span></div><p class="text-[11px] text-slate-500 mb-3">Toko dengan rata-rata nilai transaksi per struk tertinggi</p><div class="divide-y divide-slate-200" id="top-atv-list"></div></div>
+        <div class="card-panel p-5 border-t-4 border-t-amber-500"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-amber-800 uppercase">5 Toko ATP (ATV) Terendah</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">Lowest ATV</span></div><p class="text-[11px] text-slate-500 mb-3">Toko dengan rata-rata nilai transaksi per struk terendah</p><div class="divide-y divide-slate-200" id="low-atv-list"></div></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Peringkat UPT (Unit Per Transaksi)</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5 border-t-4 border-t-teal-600"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-teal-800 uppercase">5 Toko UPT Tertinggi</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800">Highest UPT</span></div><p class="text-[11px] text-slate-500 mb-3">Toko dengan rata-rata jumlah barang (Pcs) per struk tertinggi</p><div class="divide-y divide-slate-200" id="top-upt-list"></div></div>
+        <div class="card-panel p-5 border-t-4 border-t-amber-500"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-amber-800 uppercase">5 Toko UPT Terendah</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800">Lowest UPT</span></div><p class="text-[11px] text-slate-500 mb-3">Toko dengan rata-rata jumlah barang (Pcs) per struk terendah</p><div class="divide-y divide-slate-200" id="low-upt-list"></div></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Peringkat KS (Susut Barang)</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5 border-t-4 border-t-red-700"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-red-700 uppercase">5 Toko KS (Shrinkage) Tertinggi</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800">Highest KS</span></div><p class="text-[11px] text-slate-500 mb-3">Cabang dengan nilai susut (kehilangan barang) tertinggi</p><div class="divide-y divide-slate-200" id="top-ks-list"></div></div>
+        <div class="card-panel p-5 border-t-4 border-t-emerald-600"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-emerald-800 uppercase">5 Toko KS (Shrinkage) Terendah</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Lowest KS</span></div><p class="text-[11px] text-slate-500 mb-3">Cabang dengan nilai susut (kehilangan barang) paling rendah</p><div class="divide-y divide-slate-200" id="low-ks-list"></div></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Peringkat Pengeluaran Cabang</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5 border-t-4 border-t-sky-600"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-sky-800 uppercase">5 Toko Pengeluaran Tertinggi</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-sky-100 text-sky-800">Highest Expense</span></div><p class="text-[11px] text-slate-500 mb-3">Cabang dengan biaya pengeluaran operasional tertinggi</p><div class="divide-y divide-slate-200" id="top-expense-list"></div></div>
+        <div class="card-panel p-5 border-t-4 border-t-teal-600"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-teal-800 uppercase">5 Toko Pengeluaran Terendah</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-teal-100 text-teal-800">Lowest Expense</span></div><p class="text-[11px] text-slate-500 mb-3">Cabang dengan biaya pengeluaran operasional paling efisien/rendah</p><div class="divide-y divide-slate-200" id="low-expense-list"></div></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-10 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Analisis Rincian Pengeluaran</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="card-panel p-5">
+        <div class="flex flex-wrap justify-between items-center gap-2 mb-4"><h3 class="text-xs font-extrabold text-sky-800 uppercase">Item Pengeluaran Terbesar Berdasarkan Nominal</h3><span id="exp-total-label" class="text-[11px] font-black bg-sky-50 text-sky-800 px-3 py-1.5 rounded-full border border-sky-200">Total Keseluruhan: Rp 0</span></div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-2.5" id="exp-item-list"></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Peringkat Retur Barang</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5 border-t-4 border-t-orange-500"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-orange-800 uppercase">5 Toko Retur Terbanyak (Qty)</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-orange-100 text-orange-800">Highest Return</span></div><p class="text-[11px] text-slate-500 mb-3">Cabang dengan nilai & kuantitas retur barang terbanyak</p><div class="divide-y divide-slate-200" id="top-return-list"></div></div>
+        <div class="card-panel p-5 border-t-4 border-t-emerald-600"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-emerald-800 uppercase">5 Toko Retur Tersedikit (Qty)</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">Lowest Return</span></div><p class="text-[11px] text-slate-500 mb-3">Cabang dengan nilai & kuantitas retur barang paling sedikit</p><div class="divide-y divide-slate-200" id="low-return-list"></div></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-10 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Analisis Mendalam Retur Barang</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+        <div class="card-panel p-5"><h3 class="text-xs font-extrabold text-orange-800 uppercase mb-3">13 Kategori Terbanyak Diretur</h3><div class="divide-y divide-slate-200" id="ret-cat-list"></div></div>
+        <div class="card-panel p-5"><h3 class="text-xs font-extrabold text-orange-800 uppercase mb-3">20 Barang Terbanyak Diretur</h3><div class="divide-y divide-slate-200" id="ret-item-list"></div></div>
+        <div class="flex flex-col gap-5">
+          <div class="card-panel p-5 flex-1"><h3 class="text-xs font-extrabold text-orange-800 uppercase mb-3">Kondisi / Penyebab Retur Terbanyak</h3><div class="divide-y divide-slate-200" id="ret-reason-list"></div></div>
+          <div class="card-panel p-5 flex-1"><h3 class="text-xs font-extrabold text-orange-800 uppercase mb-3">Daftar Area Retur (Asal)</h3><div class="divide-y divide-slate-200" id="ret-area-list"></div></div>
+        </div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Daftar Retur Ditolak (Rejected)</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="card-panel p-5 border-red-200">
+        <p class="text-xs text-red-700 mb-3 font-semibold flex items-center gap-1.5"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg> Semua rincian di bawah ini Batal/Ditolak dan TIDAK dihitung ke dalam Total KPI manapun.</p>
+        <div class="overflow-x-auto max-h-64 overflow-y-auto rounded-lg border border-slate-200">
+          <table class="w-full text-left text-xs">
+            <thead class="uppercase bg-red-50 text-red-900 sticky top-0 font-extrabold border-b border-red-200">
+              <tr><th class="p-3">Tgl</th><th class="p-3">Toko</th><th class="p-3">SPV</th><th class="p-3">Nama Barang</th><th class="p-3 text-center">Qty</th><th class="p-3 text-right">Nominal</th><th class="p-3">Alasan Ditolak</th></tr>
+            </thead>
+            <tbody id="ret-reject-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-10 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-fuchsia-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-fuchsia-200">Analisis & Peringkat Program Promo</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <div class="flex justify-end mb-4 no-print">
+        <div class="w-full md:w-72 bg-white p-2.5 rounded-xl border border-fuchsia-300 shadow-sm flex items-center gap-3">
+          <label class="text-[11px] font-extrabold text-fuchsia-800 uppercase whitespace-nowrap">Filter Promo:</label>
+          <select id="filter-promo" onchange="applyFilter()" class="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs font-semibold rounded-lg p-1.5 outline-none focus:ring-1 focus:ring-fuchsia-600"><option value="ALL">Semua Promo</option></select>
+        </div>
+      </div>
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-5">
+        <div class="card-panel p-5"><h3 class="text-xs font-extrabold text-fuchsia-800 uppercase mb-3">Kategori Diskon Digunakan</h3><div class="divide-y divide-slate-200" id="disc-cat-list"></div></div>
+        <div class="card-panel p-5"><h3 class="text-xs font-extrabold text-fuchsia-800 uppercase mb-3">Top 20 Barang Promo Terlaris</h3><div class="divide-y divide-slate-200 max-h-96 overflow-y-auto pr-2" id="disc-item-list"></div></div>
+        <div class="card-panel p-5 flex flex-col justify-between"><h3 class="text-xs font-extrabold text-fuchsia-800 uppercase mb-3">Rasio Omset Promo vs Normal</h3><div class="h-64 relative"><canvas id="promoDonutChart"></canvas></div><p class="text-[10px] text-slate-500 mt-4 text-center font-medium">Mengukur tingkat ketergantungan toko terhadap program promo.</p></div>
+      </section>
+      <section class="card-panel p-5 mb-5"><div class="flex justify-between mb-4"><h3 class="text-xs font-extrabold text-fuchsia-800 uppercase">Tren Penjualan Promo (Unit)</h3><span id="promo-trend-subtitle" class="text-[11px] font-bold text-slate-500">Tren Mingguan</span></div><div class="h-64"><canvas id="promoTrendChart"></canvas></div></section>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div class="card-panel p-5 border-t-4 border-t-fuchsia-600"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-fuchsia-800 uppercase">5 Toko Promo Terbanyak (Qty)</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-fuchsia-100 text-fuchsia-800">Highest Promo</span></div><p class="text-[11px] text-slate-500 mb-3">Cabang dengan kuantitas barang diskon terjual paling banyak</p><div class="divide-y divide-slate-200" id="top-disc-list"></div></div>
+        <div class="card-panel p-5 border-t-4 border-t-slate-400"><div class="flex justify-between items-center mb-1"><h3 class="text-xs font-extrabold text-slate-700 uppercase">5 Toko Promo Tersedikit (Qty)</h3><span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700">Lowest Promo</span></div><p class="text-[11px] text-slate-500 mb-3">Cabang dengan kuantitas barang diskon terjual paling sedikit</p><div class="divide-y divide-slate-200" id="low-disc-list"></div></div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-fuchsia-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-fuchsia-200">Monitoring Eksekusi Promo & Stok Barang</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        <div class="card-panel p-5 border-l-4 border-l-red-600">
+          <h3 class="text-xs font-extrabold text-red-700 uppercase mb-3 flex items-center gap-2">🔴 Promo Laris - Stok Kritis (Restock)</h3>
+          <div class="divide-y divide-slate-200 max-h-48 overflow-y-auto pr-2" id="promo-kritis-list"></div>
+        </div>
+        <div class="card-panel p-5 border-l-4 border-l-amber-500">
+          <h3 class="text-xs font-extrabold text-amber-800 uppercase mb-3 flex items-center gap-2">🟡 Stok Macet - Slow Moving (Evaluasi)</h3>
+          <div class="divide-y divide-slate-200 max-h-48 overflow-y-auto pr-2" id="promo-macet-list"></div>
+        </div>
+      </section>
+      <section class="card-panel p-0 overflow-hidden mb-5">
+        <div class="p-4 border-b border-slate-200 bg-slate-50"><h3 class="text-xs font-extrabold text-slate-800 uppercase">Tabel Analisis Sell-Through Rate (STR) Promo</h3></div>
+        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="uppercase bg-slate-800 text-white sticky top-0 font-bold shadow-sm">
+              <tr><th class="p-3">Toko</th><th class="p-3">Nama Barang</th><th class="p-3">Kategori Promo</th><th class="p-3 text-center">Terjual</th><th class="p-3 text-center">Sisa Stok</th><th class="p-3 text-center">STR (%)</th><th class="p-3">Status</th></tr>
+            </thead>
+            <tbody id="promo-stock-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-10 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-red-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-red-200">Data Matriks Konsolidasi Toko</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="card-panel p-0 overflow-hidden">
+        <div class="flex flex-wrap justify-between items-center gap-3 p-4 border-b border-slate-200 bg-slate-50">
+          <div><h3 class="text-sm font-extrabold uppercase text-slate-800">Matriks Kinerja, Susut, Return, Diskon & Pengeluaran Toko</h3></div>
+          <div class="w-full sm:w-64"><input type="text" id="store-search" onkeyup="filterStoreTable()" placeholder="Cari nama toko..." class="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-800 outline-none focus:ring-1 focus:ring-red-600"></div>
+        </div>
+        <div class="overflow-x-auto max-h-96 overflow-y-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="uppercase bg-slate-800 text-white sticky top-0 font-bold shadow-sm">
+              <tr>
+                <th class="p-3">No</th>
+                <th class="p-3 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('nama')" title="Klik untuk mengurutkan">Toko &#8693;</th>
+                <th class="p-3 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('spv')" title="Klik untuk mengurutkan">SPV &#8693;</th>
+                <th class="p-3 text-right cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('sales')" title="Klik untuk mengurutkan">Penjualan &#8693;</th>
+                <th class="p-3 text-right cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('target')" title="Klik untuk mengurutkan">Target &#8693;</th>
+                <th class="p-3 text-center cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('gr')" title="Klik untuk mengurutkan">YoY &#8693;</th>
+                <th class="p-3 text-center cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('mom')" title="Klik untuk mengurutkan">MoM &#8693;</th>
+                <th class="p-3 text-right text-red-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('shVal')" title="Klik untuk mengurutkan">Shrinkage &#8693;</th>
+                <th class="p-3 text-center text-red-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('shPct')" title="Klik untuk mengurutkan">% Susut &#8693;</th>
+                <th class="p-3 text-right text-amber-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('retVal')" title="Klik untuk mengurutkan">Return (Rp) &#8693;</th>
+                <th class="p-3 text-center text-fuchsia-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('discQty')" title="Klik untuk mengurutkan">Qty Diskon &#8693;</th>
+                <th class="p-3 text-center text-emerald-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('stokPromo')" title="Klik untuk mengurutkan">Sisa Promo &#8693;</th>
+                <th class="p-3 text-right text-fuchsia-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('discVal')" title="Klik untuk mengurutkan">Nominal Diskon &#8693;</th>
+                <th class="p-3 text-right text-teal-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortStoreData('expVal')" title="Klik untuk mengurutkan">Pengeluaran &#8693;</th>
+              </tr>
+            </thead>
+            <tbody id="all-stores-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-10 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-amber-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-amber-300">🏆 Leaderboard Skor Bersih SPV (Efisiensi)</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="card-panel p-0 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50"><h3 class="text-xs font-extrabold text-slate-800">Peringkat Kinerja SPV Berdasarkan Net Score (Penjualan - Retur - Pengeluaran - Susut)</h3></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="uppercase bg-slate-800 text-amber-300 font-bold shadow-sm">
+              <tr><th class="p-3">Rank</th><th class="p-3">Nama SPV</th><th class="p-3 text-right">Gross Sales (Kotor)</th><th class="p-3 text-right text-red-300">Total Potongan (Rp)</th><th class="p-3 text-right text-emerald-300">Skor Bersih (Net Score)</th><th class="p-3 text-center">Efisiensi Skor</th></tr>
+            </thead>
+            <tbody id="spv-scorecard-tbody" class="divide-y divide-slate-200 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="flex items-center gap-4 mt-8 mb-3"><div class="h-px bg-slate-300 flex-1"></div><h2 class="text-xs font-black text-slate-800 uppercase tracking-widest bg-white px-5 py-2 rounded-full shadow-sm border border-slate-300">Data Matriks Kinerja SPV (Lengkap)</h2><div class="h-px bg-slate-300 flex-1"></div></div>
+      <section class="card-panel p-0 overflow-hidden">
+        <div class="p-4 border-b border-slate-200 bg-slate-50"><h3 class="text-sm font-extrabold uppercase text-slate-800">Matriks Kinerja SPV</h3></div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="uppercase bg-slate-800 text-white font-bold shadow-sm">
+              <tr>
+                <th class="p-3 cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('nama')" title="Klik untuk mengurutkan">SPV &#8693;</th>
+                <th class="p-3 text-right cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('sales')" title="Klik untuk mengurutkan">Realisasi Sales &#8693;</th>
+                <th class="p-3 text-right cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('target')" title="Klik untuk mengurutkan">Target (+15%) &#8693;</th>
+                <th class="p-3 text-center cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('yoy')" title="Klik untuk mengurutkan">YoY &#8693;</th>
+                <th class="p-3 text-center cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('mom')" title="Klik untuk mengurutkan">MoM &#8693;</th>
+                <th class="p-3 text-right cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('trans')" title="Klik untuk mengurutkan">Transaksi &#8693;</th>
+                <th class="p-3 text-right cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('atv')" title="Klik untuk mengurutkan">ATV &#8693;</th>
+                <th class="p-3 text-right text-amber-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('retVal')" title="Klik untuk mengurutkan">Return (Rp) &#8693;</th>
+                <th class="p-3 text-center text-fuchsia-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('discQty')" title="Klik untuk mengurutkan">Qty Diskon &#8693;</th>
+                <th class="p-3 text-right text-fuchsia-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('discVal')" title="Klik untuk mengurutkan">Nominal Diskon &#8693;</th>
+                <th class="p-3 text-right text-teal-300 cursor-pointer hover:bg-slate-700 transition" onclick="sortSpvData('expVal')" title="Klik untuk mengurutkan">Pengeluaran (Rp) &#8693;</th>
+              </tr>
+            </thead>
+            <tbody id="spv-table-body" class="divide-y divide-slate-200 bg-white"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <section id="sidak-view" class="hidden">
+      <div class="no-print mb-4 bg-white border border-red-200 border-l-4 border-l-red-700 rounded-xl p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-sm">
+        <div>
+          <span class="text-[10px] font-extrabold uppercase tracking-widest bg-red-100 text-red-800 px-2.5 py-0.5 rounded border border-red-200">Mode Audit & Kunjungan Cabang</span>
+          <h3 class="text-sm font-black text-slate-900 mt-1">Pilih Cabang pada Filter "Pilih Toko" di atas untuk menyusun Lembar Sidak</h3>
+          <p class="text-xs text-slate-500">Siap dicetak A4 berwarna atau disimpan sebagai PDF (Save as PDF) untuk dikirim via WhatsApp ke SPV.</p>
+        </div>
+        <button onclick="window.print()" class="px-5 py-2.5 bg-red-700 hover:bg-red-800 text-white font-black text-xs rounded-xl shadow-md transition flex items-center gap-2 whitespace-nowrap">🖨️ Cetak / Simpan PDF (A4)</button>
+      </div>
+
+      <div id="sidak-print-sheet" class="bg-white text-slate-900 rounded-2xl shadow-xl border border-slate-300 p-6 md:p-8 max-w-5xl mx-auto space-y-5">
+        <div class="crimson-banner text-white p-5 rounded-xl border-b-4 border-red-950 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-0.5 rounded text-[10px] font-black bg-amber-400 text-slate-950 uppercase tracking-widest">NICESO OFFICIAL AUDIT</span>
+              <span class="text-xs font-bold text-red-100 uppercase tracking-wider">AREA BARAT 3</span>
+            </div>
+            <h2 id="sdk-store-name" class="text-2xl font-black tracking-tight text-white mt-1.5">-</h2>
+            <p id="sdk-meta-info" class="text-xs text-red-100 font-medium mt-0.5">Supervisor: - | Periode Evaluasi: -</p>
+          </div>
+          <div class="text-left md:text-right">
+            <span class="text-[10px] uppercase tracking-widest text-red-100 block font-bold">Status Kesehatan Toko</span>
+            <div id="sdk-status-badge" class="mt-1 inline-block px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-emerald-400 text-slate-950 shadow">-</div>
+            <p id="sdk-print-date" class="text-[10px] text-red-100 mt-1.5 font-medium">Tanggal Cetak: -</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 avoid-break">
+          <div class="bg-slate-50 border border-slate-200 border-l-4 border-l-red-700 rounded-xl p-3.5">
+            <div class="flex justify-between items-center"><span class="text-[10px] font-extrabold text-slate-500 uppercase">Realisasi Omset</span><span id="sdk-yoy-badge" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">0% YoY</span></div>
+            <div id="sdk-sales" class="text-lg font-black text-slate-900 mt-1">Rp 0</div>
+            <div class="text-[11px] text-slate-600 mt-1 flex justify-between"><span>Target (+15%):</span><strong id="sdk-target" class="text-slate-800">Rp 0</strong></div>
+            <div class="w-full bg-slate-200 rounded-full h-2 mt-1.5"><div id="sdk-ach-bar" class="bg-red-700 h-2 rounded-full" style="width:0%"></div></div>
+            <div class="flex justify-between text-[10px] font-bold mt-1"><span id="sdk-ach-txt" class="text-red-700">0% Capai</span><span id="sdk-mom-txt" class="text-slate-600">MoM: -</span></div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 border-l-4 border-l-emerald-600 rounded-xl p-3.5">
+            <div class="flex justify-between items-center"><span class="text-[10px] font-extrabold text-slate-500 uppercase">Kualitas Kasir</span><span id="sdk-basket-badge" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Optimal</span></div>
+            <div class="grid grid-cols-2 gap-2 mt-1.5">
+              <div><span class="text-[10px] text-slate-500 block font-bold">ATV (Struk)</span><span id="sdk-atv" class="text-sm font-black text-sky-700">Rp 0</span></div>
+              <div><span class="text-[10px] text-slate-500 block font-bold">UPT (Item)</span><span id="sdk-upt" class="text-sm font-black text-emerald-700">0.0 Pcs</span></div>
+            </div>
+            <div class="mt-2 pt-1.5 border-t border-slate-200 flex justify-between text-[10px] text-slate-600"><span>Total Struk: <strong id="sdk-trans" class="text-slate-900">0</strong></span><span>Unit: <strong id="sdk-items" class="text-slate-900">0</strong></span></div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 border-l-4 border-l-rose-600 rounded-xl p-3.5">
+            <div class="flex justify-between items-center"><span class="text-[10px] font-extrabold text-slate-500 uppercase">Shrinkage (Susut)</span><span id="sdk-shr-badge" class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">Aman</span></div>
+            <div id="sdk-shr-val" class="text-lg font-black text-red-700 mt-1">Rp 0</div>
+            <div class="text-[11px] text-slate-600 mt-1 flex justify-between"><span>Rasio Susut:</span><strong id="sdk-shr-pct" class="text-red-700">0.00%</strong></div>
+            <div class="mt-2 pt-1.5 border-t border-slate-200 text-[10px] text-slate-500 font-semibold">Batas Toleransi Ritel: &le; 0.50% Omset</div>
+          </div>
+          <div class="bg-slate-50 border border-slate-200 border-l-4 border-l-amber-500 rounded-xl p-3.5">
+            <div class="flex justify-between items-center"><span class="text-[10px] font-extrabold text-slate-500 uppercase">Operasional & Promo</span><span class="text-[10px] font-extrabold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">Kontrol</span></div>
+            <div class="mt-1.5 space-y-1 text-[11px]">
+              <div class="flex justify-between"><span class="text-slate-600">Pengeluaran:</span><strong id="sdk-exp-val" class="text-teal-700">Rp 0</strong></div>
+              <div class="flex justify-between"><span class="text-slate-600">Retur Barang:</span><strong id="sdk-ret-val" class="text-amber-700">Rp 0</strong></div>
+              <div class="flex justify-between"><span class="text-slate-600">Promo Terjual:</span><strong id="sdk-disc-qty" class="text-fuchsia-700">0 Pcs</strong></div>
+              <div class="flex justify-between border-t border-slate-200 pt-1"><span class="text-slate-700 font-bold">Sisa Stok Promo:</span><strong id="sdk-stok-promo" class="text-emerald-700">0 Pcs</strong></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-red-50/70 border border-red-200 border-l-4 border-l-red-700 rounded-xl p-4 avoid-break">
+          <h3 class="text-xs font-black text-red-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">📌 Diagnosa Otomatis & Poin Arahan Briefing Toko</h3>
+          <ul id="sdk-arahan-list" class="list-disc list-inside text-xs text-slate-800 space-y-1.5 font-medium leading-relaxed"></ul>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 avoid-break">
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="bg-slate-800 text-white px-3.5 py-2 text-xs font-extrabold uppercase tracking-wider">🏆 Top Kategori & Produk Promo Terlaris</div>
+            <div class="p-3 bg-white divide-y divide-slate-200 text-xs" id="sdk-top-summary"></div>
+          </div>
+          <div class="border border-slate-200 rounded-xl overflow-hidden">
+            <div class="bg-amber-700 text-white px-3.5 py-2 text-xs font-extrabold uppercase tracking-wider">📦 Ringkasan Retur & Pengeluaran Terbesar</div>
+            <div class="p-3 bg-white divide-y divide-slate-200 text-xs" id="sdk-ops-summary"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 avoid-break">
+          <div class="border border-red-300 rounded-xl overflow-hidden">
+            <div class="bg-red-800 text-white px-3.5 py-2 text-xs font-extrabold uppercase tracking-wider flex justify-between"><span>🔴 Cek Fisik: Promo Laris Stok Kritis (&le;2 Pcs)</span><span>Wajib Restock</span></div>
+            <table class="w-full text-left text-[11px]"><thead class="bg-red-50 text-red-900 font-extrabold border-b border-red-200"><tr><th class="p-2">Nama Barang</th><th class="p-2 text-center">Laku</th><th class="p-2 text-center">Sisa</th><th class="p-2 text-center">Cek Rak</th></tr></thead><tbody id="sdk-kritis-tbody" class="divide-y divide-slate-200 bg-white"></tbody></table>
+          </div>
+          <div class="border border-amber-300 rounded-xl overflow-hidden">
+            <div class="bg-amber-500 text-slate-950 px-3.5 py-2 text-xs font-extrabold uppercase tracking-wider flex justify-between"><span>🟡 Cek Fisik: Stok Promo Macet (&ge;15 Pcs)</span><span>Evaluasi Display</span></div>
+            <table class="w-full text-left text-[11px]"><thead class="bg-amber-50 text-amber-900 font-extrabold border-b border-amber-200"><tr><th class="p-2">Nama Barang</th><th class="p-2 text-center">Laku</th><th class="p-2 text-center">Stok</th><th class="p-2 text-center">Cek POP</th></tr></thead><tbody id="sdk-macet-tbody" class="divide-y divide-slate-200 bg-white"></tbody></table>
+          </div>
+        </div>
+
+        <div class="border border-slate-300 rounded-xl p-4 bg-slate-50/70 avoid-break">
+          <h3 class="text-xs font-black text-slate-800 uppercase tracking-wider mb-2">📝 Catatan Temuan Lapangan & Instruksi Tambahan (Tulis Tangan Saat Sidak):</h3>
+          <div class="space-y-4 pt-2">
+            <div class="border-b border-dashed border-slate-400 h-4"></div>
+            <div class="border-b border-dashed border-slate-400 h-4"></div>
+            <div class="border-b border-dashed border-slate-400 h-4"></div>
+            <div class="border-b border-dashed border-slate-400 h-4"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-6 pt-4 text-center text-xs avoid-break">
+          <div class="border border-slate-300 rounded-xl p-3 bg-white">
+            <span class="font-bold text-slate-600 block uppercase text-[10px]">Dievaluasi Oleh (Area Manager)</span>
+            <div class="h-14"></div>
+            <span class="font-black text-slate-900 border-t border-slate-400 pt-1 block">Septiandi</span>
+          </div>
+          <div class="border border-slate-300 rounded-xl p-3 bg-white">
+            <span class="font-bold text-slate-600 block uppercase text-[10px]">Didampingi Oleh (Supervisor)</span>
+            <div class="h-14"></div>
+            <span id="sdk-sign-spv" class="font-black text-slate-900 border-t border-slate-400 pt-1 block">( ............................ )</span>
+          </div>
+          <div class="border border-slate-300 rounded-xl p-3 bg-white">
+            <span class="font-bold text-slate-600 block uppercase text-[10px]">Diterima Oleh (Kapten Toko / KSPP)</span>
+            <div class="h-14"></div>
+            <span class="font-black text-slate-900 border-t border-slate-400 pt-1 block">( ............................ )</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="floating-bubble-nav" class="no-print hidden fixed bottom-4 right-4 z-40 flex items-center gap-1.5 bg-slate-900/95 backdrop-blur-md text-white px-2.5 py-2 rounded-full shadow-2xl border border-slate-700">
+    <button id="bubble-btn-mode" onclick="toggleViewModeFromBubble()" class="px-3.5 py-1.5 rounded-full text-[11px] font-extrabold bg-red-600 hover:bg-red-700 text-white shadow transition whitespace-nowrap" title="Pindah Mode Tampilan">📋 Sidak Toko</button>
+    <button onclick="reloadServerData()" class="px-2.5 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-sky-600 text-slate-200 hover:text-white transition" title="Sinkronkan Data Baru">🔄</button>
+    <button onclick="window.print()" class="px-2.5 py-1.5 rounded-full text-xs font-bold bg-slate-800 hover:bg-emerald-600 text-slate-200 hover:text-white transition" title="Cetak / Simpan PDF">🖨️</button>
+    <button onclick="scrollToTopSmooth()" class="w-8 h-8 rounded-full text-xs font-black bg-slate-700 hover:bg-red-600 text-white transition flex items-center justify-center" title="Kembali ke Atas">↑</button>
+  </div>
+
+  <script>
+    var currentUser = null;
+    var currentCredentials = null;
+    var activeViewMode = "MAIN";
+    var lastComputedData = null;
+
+    var trendChartInstance=null, catChartInstance=null, catQtyChartInstance=null, storeChartInstance=null, bottomStoreChartInstance=null, bubbleChartInstance=null, promoDonutChartInstance=null, dowChartInstance=null, promoTrendChartInstance=null;
+    var globalStoreData=[], RAW_SALES=[], RAW_SHRINK=[], RAW_RETURN=[], RAW_EXPENSE=[], RAW_DISCOUNT=[], RAW_STOCK=[], STORE_NOTES_DATA={}, IS_DATA_LOADED=false;
+    var currentTokoSort = "sales", tokoSortAsc = false;
+    var spvSortKey = "sales", spvSortAsc = false, globalSpvData = [];
+    var isMoMSafe = false;
+
+    function formatRupiah(num) { return "Rp " + Math.round(Number(num || 0)).toLocaleString("id-ID"); }
+    function normalizeStoreKeyClient(name) { if (!name) return ""; var str = String(name).trim().toUpperCase(); var m = str.match(/\d+/); return m ? "NICESO " + parseInt(m[0], 10) : str; }
+    function cleanKeyClient(str) { if (!str) return ""; return String(str).toUpperCase().replace(/[^A-Z0-9]/g, ""); }
+    function makeBadge(id, val) {
+      var el = document.getElementById(id); if (!el) return;
+      var p = val >= 0, s = p ? "+" : "";
+      el.innerText = s + val.toFixed(1) + "% YoY";
+      el.className = p ? "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200" : "text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800 border border-red-200";
+    }
+    function scrollToTopSmooth() { window.scrollTo({ top: 0, behavior: "smooth" }); }
+    function toggleViewModeFromBubble() { switchViewMode(activeViewMode === "MAIN" ? "SIDAK" : "MAIN"); scrollToTopSmooth(); }
+
+    /**
+     * JEMBATAN API KE GOOGLE APPS SCRIPT STANDALONE (POST JSON via text/plain bebas CORS preflight)
+     */
+    async function callGasApi(payloadObj) {
+      if (!GAS_API_URL || GAS_API_URL.indexOf("TEMPEL_URL") !== -1 || GAS_API_URL.indexOf("http") !== 0) {
+        throw new Error("URL Web App GAS belum diisi! Edit index.html baris 12 lalu tempel URL hasil Deploy Kode.gs.");
+      }
+      var response = await fetch(GAS_API_URL, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payloadObj)
+      });
+      if (!response.ok) {
+        throw new Error("HTTP Error " + response.status + ": Gagal menghubungi server GAS.");
+      }
+      var text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error("Respon server tidak valid. Pastikan pada Deploy GAS bagian 'Yang memiliki akses' dipilih 'Siapa saja (Anyone)'.");
+      }
+    }
+
+    function switchViewMode(mode) {
+      activeViewMode = mode;
+      var btnMain = document.getElementById("tab-btn-main");
+      var btnSidak = document.getElementById("tab-btn-sidak");
+      var bubbleBtn = document.getElementById("bubble-btn-mode");
+      var mainEl = document.getElementById("content");
+      var sidakEl = document.getElementById("sidak-view");
+      if (mode === "SIDAK") {
+        btnSidak.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-red-600 text-white shadow transition";
+        btnMain.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-700 transition";
+        if (bubbleBtn) bubbleBtn.innerText = "📊 Dashboard Area";
+        mainEl.classList.add("hidden");
+        sidakEl.classList.remove("hidden");
+        var stSel = document.getElementById("filter-store");
+        if (stSel.value === "ALL" && stSel.options.length > 1) { stSel.selectedIndex = 1; applyFilter(); } else if (lastComputedData) { renderSidakSheet(lastComputedData); }
+      } else {
+        btnMain.className = "px-3.5 py-1.5 rounded-lg text-xs font-extrabold bg-red-600 text-white shadow transition";
+        btnSidak.className = "px-3.5 py-1.5 rounded-lg text-xs font-bold text-slate-300 hover:text-white hover:bg-slate-700 transition";
+        if (bubbleBtn) bubbleBtn.innerText = "📋 Sidak Toko";
+        sidakEl.classList.add("hidden");
+        if (IS_DATA_LOADED) mainEl.classList.remove("hidden");
+      }
+    }
+
+    window.onload = function() {
+      var savedEmail = localStorage.getItem("niceso_user_email");
+      var savedPass = localStorage.getItem("niceso_user_pass");
+      if (savedEmail && savedPass) {
+        document.getElementById("login-email").value = savedEmail;
+        document.getElementById("login-password").value = savedPass;
+        processLogin();
+      }
+    };
+
+    function logoutAccount() {
+      localStorage.removeItem("niceso_user_email");
+      localStorage.removeItem("niceso_user_pass");
+      currentCredentials = null;
+      currentUser = null;
+      location.reload();
+    }
+
+    async function processLogin() {
+      var email = String(document.getElementById("login-email").value || "").trim();
+      var pass = String(document.getElementById("login-password").value || "").trim();
+      var btnTxt = document.getElementById("login-text"), spin = document.getElementById("login-spinner"), err = document.getElementById("login-error"), btn = document.getElementById("btn-login");
+      err.classList.add("hidden");
+      if (!email || !pass) {
+        err.innerText = "Email dan Password tidak boleh kosong.";
+        err.classList.remove("hidden");
+        return;
+      }
+      btn.disabled = true;
+      btnTxt.innerText = "Memverifikasi...";
+      spin.classList.remove("hidden");
+
+      try {
+        var res = await callGasApi({ action: "login", email: email, password: pass });
+        btn.disabled = false;
+        btnTxt.innerText = "Masuk Sekarang";
+        spin.classList.add("hidden");
+        if (res && res.success) {
+          localStorage.setItem("niceso_user_email", email);
+          localStorage.setItem("niceso_user_pass", pass);
+          currentCredentials = { email: email, password: pass };
+          currentUser = res;
+          document.getElementById("login-modal").classList.add("hidden");
+          var bdg = document.getElementById("user-role-badge");
+          bdg.innerText = res.role === "AM" ? "Area Manager (" + res.userName + ")" : res.userName + " (" + res.role + ")";
+          bdg.classList.remove("hidden");
+          var fbn = document.getElementById("floating-bubble-nav");
+          if (fbn) fbn.classList.remove("hidden");
+          reloadServerData();
+        } else {
+          err.innerText = (res && res.message) ? res.message : "Login ditolak server.";
+          err.classList.remove("hidden");
+        }
+      } catch (error) {
+        btn.disabled = false;
+        btnTxt.innerText = "Masuk Sekarang";
+        spin.classList.add("hidden");
+        err.innerText = error.message || "Gagal terhubung ke server GAS.";
+        err.classList.remove("hidden");
+      }
+    }
+
+    async function reloadServerData() {
+      if (!currentCredentials || !currentCredentials.email || !currentCredentials.password) {
+        logoutAccount();
+        return;
+      }
+      var loadingEl = document.getElementById("loading");
+      loadingEl.innerHTML = '<div class="w-10 h-10 border-4 border-red-700 border-t-transparent rounded-full animate-spin"></div><p class="mt-3 text-slate-600 text-xs font-bold">Memuat & menyinkronkan data dari server...</p>';
+      loadingEl.classList.remove("hidden");
+      document.getElementById("content").classList.add("hidden");
+      document.getElementById("sidak-view").classList.add("hidden");
+
+      try {
+        var res = await callGasApi({
+          action: "get_data",
+          email: currentCredentials.email,
+          password: currentCredentials.password
+        });
+        if (!res || !res.success) {
+          throw new Error((res && res.message) ? res.message : "Gagal memuat dataset dari server.");
+        }
+        if (res.user) { currentUser = res.user; }
+        var payload = res.payload || {};
+
+        RAW_SALES = payload.salesRows || [];
+        RAW_SHRINK = payload.shrinkRows || [];
+        RAW_RETURN = payload.returnRows || [];
+        RAW_EXPENSE = payload.expenseRows || [];
+        RAW_DISCOUNT = payload.discountRows || [];
+        RAW_STOCK = payload.stockRows || [];
+        STORE_NOTES_DATA = payload.storeNotesMap || {};
+
+        var opts = payload.options || { tahunList: [2026, 2025], bulanList: [], spvList: [], storeList: [], promoList: [] };
+
+        var prevThn = document.getElementById("filter-tahun").value;
+        var prevBln = document.getElementById("filter-bulan").value;
+        var prevSpv = document.getElementById("filter-spv").value;
+        var prevSt = document.getElementById("filter-store").value;
+        var prevPrm = document.getElementById("filter-promo").value;
+
+        var thnSel = document.getElementById("filter-tahun");
+        thnSel.innerHTML = "<option value='ALL'>Semua Tahun</option>";
+        opts.tahunList.forEach(function(t) { thnSel.innerHTML += "<option value='" + t + "'>" + t + "</option>"; });
+        if (prevThn && Array.from(thnSel.options).some(function(o) { return o.value === prevThn; })) thnSel.value = prevThn;
+
+        var blnSel = document.getElementById("filter-bulan");
+        blnSel.innerHTML = "<option value='ALL' selected>Semua Bulan</option>";
+        opts.bulanList.forEach(function(b) { blnSel.innerHTML += "<option value='" + b + "'>" + b + "</option>"; });
+        if (prevBln && Array.from(blnSel.options).some(function(o) { return o.value === prevBln; })) blnSel.value = prevBln;
+
+        var spvSel = document.getElementById("filter-spv");
+        spvSel.innerHTML = "<option value='ALL'>Semua SPV</option>";
+        opts.spvList.forEach(function(s) { spvSel.innerHTML += "<option value='" + s + "'>" + s + "</option>"; });
+        if (prevSpv && Array.from(spvSel.options).some(function(o) { return o.value === prevSpv; })) spvSel.value = prevSpv;
+
+        var stSel = document.getElementById("filter-store");
+        stSel.innerHTML = "<option value='ALL'>Semua Toko</option>";
+        opts.storeList.forEach(function(st) {
+          if (currentUser.role === "SPV" && Array.isArray(currentUser.allowedStores) && currentUser.allowedStores.indexOf(normalizeStoreKeyClient(st)) === -1) return;
+          stSel.innerHTML += "<option value='" + st + "'>" + st + "</option>";
+        });
+        if (prevSt && Array.from(stSel.options).some(function(o) { return o.value === prevSt; })) stSel.value = prevSt;
+
+        var prmSel = document.getElementById("filter-promo");
+        prmSel.innerHTML = "<option value='ALL'>Semua Kategori Promo</option>";
+        opts.promoList.forEach(function(p) { prmSel.innerHTML += "<option value='" + p + "'>" + p + "</option>"; });
+        if (prevPrm && Array.from(prmSel.options).some(function(o) { return o.value === prevPrm; })) prmSel.value = prevPrm;
+
+        IS_DATA_LOADED = true;
+        applyFilter();
+        if (activeViewMode === "SIDAK") {
+          document.getElementById("content").classList.add("hidden");
+          document.getElementById("sidak-view").classList.remove("hidden");
+        }
+      } catch (error) {
+        loadingEl.innerHTML = '<div class="bg-red-50 border border-red-300 text-red-800 p-5 rounded-xl max-w-lg text-center space-y-2.5 shadow-sm"><p class="font-extrabold text-sm">Gagal Sinkronisasi Data</p><p class="text-xs leading-relaxed">' + (error.message || 'Terjadi kesalahan saat mengambil data.') + '</p><button onclick="reloadServerData()" class="px-4 py-2 bg-red-700 hover:bg-red-800 text-white text-xs font-bold rounded-lg shadow">Coba Lagi</button></div>';
+      }
+    }
+
+    function applyFilter() {
+      if (!IS_DATA_LOADED) return;
+      var filters = {
+        tahun: document.getElementById("filter-tahun").value,
+        bulan: document.getElementById("filter-bulan").value,
+        spv: document.getElementById("filter-spv").value,
+        store: document.getElementById("filter-store").value,
+        start: document.getElementById("filter-start").value,
+        end: document.getElementById("filter-end").value,
+        promo: document.getElementById("filter-promo").value
+      };
+      var computed = computeFilteredDataInstant(filters);
+      lastComputedData = computed;
+      renderDashboard(computed);
+      renderSidakSheet(computed);
+    }
+
+    function computeFilteredDataInstant(f) {
+      var targetTahun = f.tahun === "ALL" ? 2026 : Number(f.tahun);
+      var compTahun = targetTahun - 1;
+      var normStore = f.store === "ALL" ? "ALL" : normalizeStoreKeyClient(f.store);
+      var normSpv = f.spv === "ALL" ? "ALL" : String(f.spv).trim().toUpperCase();
+      var normBulan = f.bulan === "ALL" ? "ALL" : String(f.bulan).trim().toUpperCase();
+      var normPromo = f.promo === "ALL" ? "ALL" : cleanKeyClient(f.promo);
+      var sM = null, sD = null, eM = null, eD = null;
+      if (f.start) { var pS = f.start.split("-"); sM = Number(pS[1]); sD = Number(pS[2]); }
+      if (f.end) { var pE = f.end.split("-"); eM = Number(pE[1]); eD = Number(pE[2]); }
+      var allowedList = (currentUser && currentUser.role === "SPV" && Array.isArray(currentUser.allowedStores)) ? currentUser.allowedStores : null;
+
+      var isAllBulan = (normBulan === "ALL");
+      var bulanNumMap = { "JANUARI":1, "FEBRUARI":2, "MARET":3, "APRIL":4, "MEI":5, "JUNI":6, "JULI":7, "AGUSTUS":8, "SEPTEMBER":9, "OKTOBER":10, "NOVEMBER":11, "DESEMBER":12 };
+      var targetBulanNum = 0, prevMoNum = 0, prevMoTahun = 0;
+      if (!isAllBulan) {
+        targetBulanNum = bulanNumMap[normBulan]; prevMoNum = targetBulanNum - 1; prevMoTahun = targetTahun;
+        if (prevMoNum === 0) { prevMoNum = 12; prevMoTahun = targetTahun - 1; }
+      }
+
+      var shrinkMap = {}, shrinkMeta = {}, totShrink = 0, mShrink = 0;
+      for (var i = 0; i < RAW_SHRINK.length; i++) {
+        var sR = RAW_SHRINK[i]; var sTh = sR[0], sB = String(sR[1] || ""), sMo = sR[2], sDa = sR[3], sHd = sR[4], sTk = sR[5], nK = sR[6], sSp = String(sR[7] || ""), sNom = sR[8];
+        if (allowedList && allowedList.indexOf(nK) === -1) continue;
+        if (normSpv !== "ALL" && sSp.toUpperCase() !== normSpv) continue;
+        if (normStore !== "ALL" && nK !== normStore) continue;
+        var isCurr = false, isMoM = false;
+        if (isAllBulan) { if (sTh === targetTahun) isCurr = true; } else { if (sTh === targetTahun && sB.toUpperCase() === normBulan) isCurr = true; if (sTh === prevMoTahun && sMo === prevMoNum) isMoM = true; }
+        if (isCurr) {
+          if (sM !== null || eM !== null) { if (sHd === 1) { if (sM !== null && (sMo < sM || (sMo === sM && sDa < sD))) continue; if (eM !== null && (sMo > eM || (sMo === eM && sDa > eD))) continue; } else if (sMo > 0) { if (sM !== null && sMo < sM) continue; if (eM !== null && sMo > eM) continue; } }
+          totShrink += sNom; shrinkMap[nK] = (shrinkMap[nK] || 0) + sNom; if (!shrinkMeta[nK]) shrinkMeta[nK] = { nama: sTk, spv: sSp };
+        }
+        if (isMoM) { mShrink += sNom; }
+      }
+
+      var returnMap = {}, returnQtyMap = {}, returnMeta = {}, totReturnVal = 0, totReturnQty = 0;
+      var retCatMap = {}, retItemMap = {}, retReasonMap = {}, retAreaMap = {}, tolakList = [];
+      for (var rI = 0; rI < RAW_RETURN.length; rI++) {
+        var rR = RAW_RETURN[rI]; var rTh = rR[0], rB = String(rR[1] || ""), rMo = rR[2], rDa = rR[3], rHd = rR[4], rTk = rR[5], rNK = rR[6], rSp = String(rR[7] || ""), rVal = rR[8], rQty = rR[9];
+        var rKat = rR[10], rBarang = rR[11], rAsal = rR[12], rPenyebab = rR[13], rStatus = String(rR[14] || "").toLowerCase(), rAlasan = rR[15];
+        if (rTh !== targetTahun) continue;
+        if (allowedList && allowedList.indexOf(rNK) === -1) continue;
+        if (!isAllBulan && rB.toUpperCase() !== "ALL" && rB.toUpperCase() !== normBulan) continue;
+        if (normSpv !== "ALL" && rSp.toUpperCase() !== normSpv) continue;
+        if (normStore !== "ALL" && rNK !== normStore) continue;
+        if (sM !== null || eM !== null) { if (rHd === 1) { if (sM !== null && (rMo < sM || (rMo === sM && rDa < sD))) continue; if (eM !== null && (rMo > eM || (rMo === eM && rDa > eD))) continue; } else if (rMo > 0) { if (sM !== null && rMo < sM) continue; if (eM !== null && rMo > eM) continue; } }
+
+        var isTolak = (rStatus === "tolak" || rStatus === "ok") ? (rStatus === "tolak") : false;
+        if (isTolak) {
+          var dtStr = (rDa > 0 && rMo > 0) ? rDa + "/" + rMo + "/" + rTh : rB + " " + rTh;
+          tolakList.push({ toko: rTk, spv: rSp, barang: rBarang, qty: rQty, val: rVal, alasan: rAlasan, tgl: dtStr });
+        } else {
+          totReturnVal += rVal; totReturnQty += rQty;
+          returnMap[rNK] = (returnMap[rNK] || 0) + rVal; returnQtyMap[rNK] = (returnQtyMap[rNK] || 0) + rQty;
+          if (!returnMeta[rNK]) returnMeta[rNK] = { nama: rTk, spv: rSp };
+          if (rKat) retCatMap[rKat] = (retCatMap[rKat] || 0) + rQty;
+          if (rBarang) retItemMap[rBarang] = (retItemMap[rBarang] || 0) + rQty;
+          if (rPenyebab) retReasonMap[rPenyebab] = (retReasonMap[rPenyebab] || 0) + rQty;
+          if (rAsal) retAreaMap[rAsal] = (retAreaMap[rAsal] || 0) + rQty;
+        }
+      }
+
+      var expenseMap = {}, expenseCntMap = {}, expenseMeta = {}, totExpenseVal = 0, totExpenseCnt = 0; var expenseItemMap = {};
+      for (var eI = 0; eI < RAW_EXPENSE.length; eI++) {
+        var eR = RAW_EXPENSE[eI]; var eTh = eR[0], eB = String(eR[1] || ""), eMo = eR[2], eDa = eR[3], eHd = eR[4], eTk = eR[5], eNK = eR[6], eSp = String(eR[7] || ""), eVal = eR[8], eCnt = eR[9];
+        var eKat = eR[10], eItem = eR[11];
+        if (eTh !== targetTahun) continue;
+        if (allowedList && allowedList.indexOf(eNK) === -1) continue;
+        if (!isAllBulan && eB.toUpperCase() !== "ALL" && eB.toUpperCase() !== normBulan) continue;
+        if (normSpv !== "ALL" && eSp.toUpperCase() !== normSpv) continue;
+        if (normStore !== "ALL" && eNK !== normStore) continue;
+        if (sM !== null || eM !== null) { if (eHd === 1) { if (sM !== null && (eMo < sM || (eMo === sM && eDa < sD))) continue; if (eM !== null && (eMo > eM || (eMo === eM && eDa > eD))) continue; } else if (eMo > 0) { if (sM !== null && eMo < sM) continue; if (eM !== null && eMo > eM) continue; } }
+        totExpenseVal += eVal; totExpenseCnt += eCnt;
+        expenseMap[eNK] = (expenseMap[eNK] || 0) + eVal; expenseCntMap[eNK] = (expenseCntMap[eNK] || 0) + eCnt;
+        if (!expenseMeta[eNK]) expenseMeta[eNK] = { nama: eTk, spv: eSp };
+        if (eItem) expenseItemMap[eItem] = (expenseItemMap[eItem] || 0) + eVal;
+      }
+
+      var discMap = {}, discQtyMap = {}, totDiscVal = 0, totDiscQty = 0, discCatMap = {}, discItemMap = {};
+      var pAgg = {}; var pTrendMap = {};
+      for (var dI = 0; dI < RAW_DISCOUNT.length; dI++) {
+        var dR = RAW_DISCOUNT[dI]; var dTh = dR[0], dB = String(dR[1] || ""), dMo = dR[2], dDa = dR[3], dHd = dR[4], dTk = dR[5], dNK = dR[6], dSp = String(dR[7] || "");
+        var dQty = dR[8], dVal = dR[9], dKat = dR[10], dItem = dR[11];
+        var cKat = cleanKeyClient(dKat); var cItem = cleanKeyClient(dItem);
+        if (dTh !== targetTahun) continue;
+        if (allowedList && allowedList.indexOf(dNK) === -1) continue;
+        if (!isAllBulan && dB.toUpperCase() !== "ALL" && dB.toUpperCase() !== normBulan) continue;
+        if (normSpv !== "ALL" && dSp.toUpperCase() !== normSpv) continue;
+        if (normStore !== "ALL" && dNK !== normStore) continue;
+        if (sM !== null || eM !== null) { if (dHd === 1) { if (sM !== null && (dMo < sM || (dMo === sM && dDa < sD))) continue; if (eM !== null && (dMo > eM || (dMo === eM && dDa > eD))) continue; } else if (dMo > 0) { if (sM !== null && dMo < sM) continue; if (eM !== null && dMo > eM) continue; } }
+        if (normPromo !== "ALL" && cKat !== normPromo) continue;
+        totDiscVal += dVal; totDiscQty += dQty;
+        discMap[dNK] = (discMap[dNK] || 0) + dVal; discQtyMap[dNK] = (discQtyMap[dNK] || 0) + dQty;
+        if (dKat) { if (!discCatMap[dKat]) discCatMap[dKat] = { qty: 0, val: 0 }; discCatMap[dKat].qty += dQty; discCatMap[dKat].val += dVal; }
+        if (dItem) { if (!discItemMap[dItem]) discItemMap[dItem] = { qty: 0, val: 0 }; discItemMap[dItem].qty += dQty; discItemMap[dItem].val += dVal; }
+
+        var pKey = dNK + "|" + cItem + "|" + cKat;
+        if (!pAgg[pKey]) { pAgg[pKey] = { toko: dTk, normTk: dNK, spv: dSp, barang: dItem, cleanBarang: cItem, kat: dKat, cleanKat: cKat, sold: 0 }; }
+        pAgg[pKey].sold += dQty;
+
+        var ptK = 0, ptL = "";
+        if (isAllBulan) { ptK = dMo; ptL = dB; }
+        else { if (dDa <= 7) { ptK = 1; ptL = "Minggu 1 (1-7)"; } else if (dDa <= 14) { ptK = 2; ptL = "Minggu 2 (8-14)"; } else if (dDa <= 21) { ptK = 3; ptL = "Minggu 3 (15-21)"; } else { ptK = 4; ptL = "Minggu 4 (22+)"; } }
+        if (!pTrendMap[ptK]) { pTrendMap[ptK] = { key: ptK, label: ptL, qty: 0 }; }
+        pTrendMap[ptK].qty += dQty;
+      }
+
+      var cSal = 0, cTrans = 0, cItm = 0, pSal = 0, pTrans = 0, pItm = 0, mSal = 0, mTrans = 0, mItm = 0;
+      var trMap = {}, cMap = {}, stMap = {}, spvMap = {}, dowMap = { 0:0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 };
+      for (var i = 0; i < RAW_SALES.length; i++) {
+        var r = RAW_SALES[i]; var th = r[0], bl = String(r[1] || ""), mo = r[2], da = r[3], tk = r[4], nk = r[5], sp = String(r[6] || ""), kat = r[7];
+        var item = Number(r[8]) || 0; var amountKategoriOnly = Number(r[9]) || 0; var trans = Number(r[10]) || 0; var nominalPenjualanOmset = Number(r[11]) || 0;
+        if (allowedList && allowedList.indexOf(nk) === -1) continue;
+        if (normSpv !== "ALL" && sp.toUpperCase() !== normSpv) continue;
+        if (normStore !== "ALL" && nk !== normStore) continue;
+        if (sM !== null && (mo < sM || (mo === sM && da < sD))) continue;
+        if (eM !== null && (mo > eM || (mo === eM && da > eD))) continue;
+
+        var isCurr = false, isYoY = false, isMoM = false;
+        if (isAllBulan) { if (th === targetTahun) isCurr = true; if (th === compTahun) isYoY = true; }
+        else { if (th === targetTahun && mo === targetBulanNum) isCurr = true; if (th === compTahun && mo === targetBulanNum) isYoY = true; if (th === prevMoTahun && mo === prevMoNum) isMoM = true; }
+        if (!isCurr && !isYoY && !isMoM) continue;
+
+        if (tk && !stMap[nk]) stMap[nk] = { nama: tk, spv: sp, sales: 0, pSales: 0, mSales: 0, trans: 0, items: 0 };
+        if (sp && !spvMap[sp]) spvMap[sp] = { nama: sp, sales: 0, pSales: 0, mSales: 0, trans: 0, retVal: 0, expVal: 0, discVal: 0, discQty: 0, shVal: 0 };
+
+        if (isCurr) {
+          cSal += nominalPenjualanOmset; cItm += item; cTrans += trans;
+          var dayOfWeek = new Date(th, mo - 1, da).getDay(); dowMap[dayOfWeek] += nominalPenjualanOmset;
+          var tKey = isAllBulan ? ((mo < 10 ? "0" + mo : mo) + "/" + (da < 10 ? "0" + da : da)) : da;
+          if (!trMap[tKey]) trMap[tKey] = { key: tKey, label: isAllBulan ? tKey : "Tgl " + da, sales: 0, pSales: 0 };
+          trMap[tKey].sales += nominalPenjualanOmset;
+          if (kat) { if (!cMap[kat]) cMap[kat] = { kategori: kat, sales: 0, pSales: 0, items: 0, pItems: 0 }; cMap[kat].sales += amountKategoriOnly; cMap[kat].items += item; }
+          if (stMap[nk]) { stMap[nk].sales += nominalPenjualanOmset; stMap[nk].trans += trans; stMap[nk].items += item; if (sp) stMap[nk].spv = sp; }
+          if (sp && spvMap[sp]) { spvMap[sp].sales += nominalPenjualanOmset; spvMap[sp].trans += trans; }
+        }
+        if (isYoY) {
+          pSal += nominalPenjualanOmset; pTrans += trans; pItm += item;
+          var tKeyY = isAllBulan ? ((mo < 10 ? "0" + mo : mo) + "/" + (da < 10 ? "0" + da : da)) : da;
+          if (!trMap[tKeyY]) trMap[tKeyY] = { key: tKeyY, label: isAllBulan ? tKeyY : "Tgl " + da, sales: 0, pSales: 0 };
+          trMap[tKeyY].pSales += nominalPenjualanOmset;
+          if (kat) { if (!cMap[kat]) cMap[kat] = { kategori: kat, sales: 0, pSales: 0, items: 0, pItems: 0 }; cMap[kat].pSales += amountKategoriOnly; cMap[kat].pItems += item; }
+          if (stMap[nk]) { stMap[nk].pSales += nominalPenjualanOmset; if (sp && !stMap[nk].spv) stMap[nk].spv = sp; }
+          if (sp && spvMap[sp]) { spvMap[sp].pSales += nominalPenjualanOmset; }
+        }
+        if (isMoM) {
+          mSal += nominalPenjualanOmset; mTrans += trans; mItm += item;
+          if (stMap[nk]) stMap[nk].mSales += nominalPenjualanOmset;
+          if (sp && spvMap[sp]) spvMap[sp].mSales += nominalPenjualanOmset;
+        }
+      }
+
+      Object.keys(shrinkMap).forEach(function(nk) { if (!stMap[nk]) { var mt = shrinkMeta[nk] || { nama: nk, spv: "-" }; stMap[nk] = { nama: mt.nama, spv: mt.spv, sales: 0, pSales: 0, mSales: 0, trans: 0, items: 0 }; } });
+      Object.keys(returnMap).forEach(function(nk) { if (!stMap[nk]) { var mt = returnMeta[nk] || { nama: nk, spv: "-" }; stMap[nk] = { nama: mt.nama, spv: mt.spv, sales: 0, pSales: 0, mSales: 0, trans: 0, items: 0 }; } });
+      Object.keys(expenseMap).forEach(function(nk) { if (!stMap[nk]) { var mt = expenseMeta[nk] || { nama: nk, spv: "-" }; stMap[nk] = { nama: mt.nama, spv: mt.spv, sales: 0, pSales: 0, mSales: 0, trans: 0, items: 0 }; } });
+      Object.keys(discMap).forEach(function(nk) { if (!stMap[nk]) { stMap[nk] = { nama: nk, spv: "-", sales: 0, pSales: 0, mSales: 0, trans: 0, items: 0 }; } });
+      for (var i = 0; i < RAW_STOCK.length; i++) { var r = RAW_STOCK[i]; var nTk = r[0]; if (allowedList && allowedList.indexOf(nTk) === -1) continue; if (normStore !== "ALL" && nTk !== normStore) continue; if (!stMap[nTk]) { stMap[nTk] = { nama: r[4], spv: "-", sales: 0, pSales: 0, mSales: 0, trans: 0, items: 0 }; } }
+
+      var cSalLFL = 0, pSalLFL = 0, cSalNew = 0, newStoresList = [];
+      var allList = Object.keys(stMap).map(function(nk) {
+        var s = stMap[nk]; var sh = shrinkMap[nk] || 0; var shP = s.sales > 0 ? (sh / s.sales) * 100 : 0;
+        var retV = returnMap[nk] || 0; var retQ = returnQtyMap[nk] || 0; var retP = s.sales > 0 ? (retV / s.sales) * 100 : 0;
+        var expV = expenseMap[nk] || 0; var expC = expenseCntMap[nk] || 0; var expP = s.sales > 0 ? (expV / s.sales) * 100 : 0;
+        var discV = discMap[nk] || 0; var discQ = discQtyMap[nk] || 0;
+        if (s.spv && spvMap[s.spv]) { spvMap[s.spv].retVal += retV; spvMap[s.spv].expVal += expV; spvMap[s.spv].discVal += discV; spvMap[s.spv].discQty += discQ; spvMap[s.spv].shVal = (spvMap[s.spv].shVal || 0) + sh; }
+        var mom = (isAllBulan || s.mSales === 0) ? (s.sales > 0 ? 100 : 0) : ((s.sales - s.mSales) / s.mSales) * 100;
+        if (isAllBulan && s.sales === 0) mom = 0;
+        var note = STORE_NOTES_DATA[nk] || ""; var noteUp = note.toUpperCase(); var isLFL = true;
+        if (noteUp.indexOf("BARU") === 0 || noteUp.indexOf("RELOKASI") === 0 || noteUp.indexOf("TUTUP") === 0 || noteUp.indexOf("RENOVASI") === 0) { isLFL = false; }
+        if (isLFL) { cSalLFL += s.sales; pSalLFL += s.pSales; } else { cSalNew += s.sales; if (s.sales > 0) newStoresList.push(s.nama); }
+        return { nama: s.nama, spv: s.spv || "-", normTk: nk, sales: s.sales, pSales: s.pSales, mSales: s.mSales, target: s.pSales * 1.15, gr: s.pSales > 0 ? ((s.sales - s.pSales) / s.pSales) * 100 : (s.sales > 0 ? 100 : 0), mom: mom, note: note, isLFL: isLFL, shVal: sh, shPct: shP, retVal: retV, retQty: retQ, retPct: retP, expVal: expV, expCnt: expC, expPct: expP, discVal: discV, discQty: discQ, trans: s.trans, items: s.items, atv: s.trans > 0 ? Math.round(s.sales / s.trans) : 0, upt: s.trans > 0 ? Number((s.items / s.trans).toFixed(2)) : 0 };
+      }).sort(function(a, b) { return b.sales - a.sales; });
+
+      var stockMap = {}; var stockMapFallback = {};
+      for (var i = 0; i < RAW_STOCK.length; i++) {
+        var r = RAW_STOCK[i]; var cBrg = cleanKeyClient(r[1]); var cPrm = cleanKeyClient(r[3]);
+        var key3 = r[0] + "|" + cBrg + "|" + cPrm; var key2 = r[0] + "|" + cBrg;
+        stockMap[key3] = (stockMap[key3] || 0) + r[2];
+        stockMapFallback[key2] = (stockMapFallback[key2] || 0) + r[2];
+      }
+      var promoMonitoring = []; var alertKritis = []; var alertMacet = []; var usedFallback = {};
+      Object.values(pAgg).forEach(function(p) {
+        var sKey3 = p.normTk + "|" + p.cleanBarang + "|" + p.cleanKat;
+        var sKey2 = p.normTk + "|" + p.cleanBarang;
+        var sQty = 0;
+        if (stockMap[sKey3] !== undefined && stockMap[sKey3] !== -1) { sQty = stockMap[sKey3]; stockMap[sKey3] = -1; usedFallback[sKey2] = true; }
+        else if (!usedFallback[sKey2] && stockMapFallback[sKey2] !== undefined) { sQty = stockMapFallback[sKey2]; usedFallback[sKey2] = true; }
+        var total = p.sold + sQty; var str = total > 0 ? (p.sold / total) * 100 : 0;
+        var status = "Normal"; var statusColor = "text-emerald-700";
+        if (p.sold > 0 && sQty <= 2) { status = "Kritis / Habis"; statusColor = "text-red-700"; alertKritis.push({ toko: p.toko, spv: p.spv, barang: p.barang, sold: p.sold, stock: sQty }); }
+        else if (p.sold <= 2 && sQty >= 15) { status = "Stok Macet"; statusColor = "text-amber-700"; alertMacet.push({ toko: p.toko, spv: p.spv, barang: p.barang, sold: p.sold, stock: sQty }); }
+        promoMonitoring.push({ toko: p.toko, normTk: p.normTk, spv: p.spv, barang: p.barang, kat: p.kat, sold: p.sold, stock: sQty, str: str, status: status, color: statusColor });
+      });
+      for (var i = 0; i < RAW_STOCK.length; i++) {
+        var r = RAW_STOCK[i]; var nTk = r[0]; var brg = r[1]; var sq = r[2]; var prm = r[3]; var tk = r[4];
+        var cBrg = cleanKeyClient(brg); var cPrm = cleanKeyClient(prm);
+        if (allowedList && allowedList.indexOf(nTk) === -1) continue;
+        if (normStore !== "ALL" && nTk !== normStore) continue;
+        if (normPromo !== "ALL" && cPrm !== normPromo) continue;
+        var sKey3 = nTk + "|" + cBrg + "|" + cPrm; var sKey2 = nTk + "|" + cBrg;
+        if (stockMap[sKey3] !== -1 && !usedFallback[sKey2]) {
+          var spvName = "-"; if (stMap[nTk]) spvName = stMap[nTk].spv;
+          if (normSpv !== "ALL" && String(spvName).toUpperCase() !== normSpv) continue;
+          var status = "Normal"; var statusColor = "text-slate-500";
+          if (sq >= 15) { status = "Stok Macet"; statusColor = "text-amber-700"; alertMacet.push({ toko: tk, spv: spvName, barang: brg, sold: 0, stock: sq }); }
+          promoMonitoring.push({ toko: tk, normTk: nTk, spv: spvName, barang: brg, kat: prm || "Promo Lainnya", sold: 0, stock: sq, str: 0, status: status, color: statusColor });
+          stockMap[sKey3] = -1;
+        }
+      }
+      promoMonitoring.sort(function(a, b) { return b.sold - a.sold; });
+      alertKritis.sort(function(a, b) { return b.sold - a.sold; });
+      alertMacet.sort(function(a, b) { return b.stock - a.stock; });
+      var storePromoStockMap = {}; promoMonitoring.forEach(function(x) { storePromoStockMap[x.normTk] = (storePromoStockMap[x.normTk] || 0) + x.stock; });
+      allList.forEach(function(s) { s.stokPromo = storePromoStockMap[s.normTk] || 0; });
+
+      var yoyLFL = pSalLFL > 0 ? ((cSalLFL - pSalLFL) / pSalLFL) * 100 : (cSalLFL > 0 ? 100 : 0);
+      var globalMoM = 0; if (!isAllBulan && mSal > 0) { globalMoM = ((cSal - mSal) / mSal) * 100; } else if (!isAllBulan && cSal > 0) { globalMoM = 100; }
+      var globalMoMTrans = 0; if (!isAllBulan && mTrans > 0) { globalMoMTrans = ((cTrans - mTrans) / mTrans) * 100; } else if (!isAllBulan && cTrans > 0) { globalMoMTrans = 100; }
+      var globalMoMItm = 0; if (!isAllBulan && mItm > 0) { globalMoMItm = ((cItm - mItm) / mItm) * 100; } else if (!isAllBulan && cItm > 0) { globalMoMItm = 100; }
+      var globalMoMShrink = 0; if (!isAllBulan && mShrink > 0) { globalMoMShrink = ((totShrink - mShrink) / mShrink) * 100; } else if (!isAllBulan && totShrink > 0) { globalMoMShrink = 100; }
+      var active = allList.filter(function(st) { return st.sales > 0; });
+      var topStore = active.length > 0 ? active[0] : null;
+      var atvValid = active.filter(function(s) { return s.atv > 0; });
+      var atvHigh5 = atvValid.slice().sort(function(a, b) { return b.atv - a.atv; }).slice(0, 5);
+      var atvLow5 = atvValid.slice().sort(function(a, b) { return a.atv - b.atv; }).slice(0, 5);
+      var uptValid = active.filter(function(s) { return s.upt > 0; });
+      var uptHigh5 = uptValid.slice().sort(function(a, b) { return b.upt - a.upt; }).slice(0, 5);
+      var uptLow5 = uptValid.slice().sort(function(a, b) { return a.upt - b.upt; }).slice(0, 5);
+      var shrinkAlert = allList.slice().filter(function(s) { return s.shVal > 0; }).sort(function(a, b) { return b.shVal - a.shVal; });
+      var shrinkLow5 = allList.slice().filter(function(s) { return s.shVal > 0; }).sort(function(a, b) { return a.shVal - b.shVal; }).slice(0, 5);
+      var returnAlert = allList.slice().filter(function(s) { return s.retVal > 0 || s.retQty > 0; }).sort(function(a, b) { return b.retQty - a.retQty || b.retVal - a.retVal; });
+      var returnLow5 = allList.slice().filter(function(s) { return s.retVal > 0 || s.retQty > 0; }).sort(function(a, b) { return (a.retQty - b.retQty) || (a.retVal - b.retVal); }).slice(0, 5);
+      var expenseAlert = allList.slice().filter(function(s) { return s.expVal > 0; }).sort(function(a, b) { return b.expVal - a.expVal; });
+      var expenseLow5 = allList.slice().filter(function(s) { return s.expVal > 0; }).sort(function(a, b) { return a.expVal - b.expVal; }).slice(0, 5);
+      var discValid = active.filter(function(s) { return s.discQty > 0 || s.discVal > 0; });
+      var discHigh5 = discValid.slice().sort(function(a, b) { return b.discQty - a.discQty; }).slice(0, 5);
+      var discLow5 = discValid.slice().sort(function(a, b) { return a.discQty - b.discQty; }).slice(0, 5);
+
+      var sortObj = function(obj) { return Object.keys(obj).map(function(k) { return { name: k, val: obj[k] }; }).sort(function(a, b) { return b.val - a.val; }); };
+      var dCatArr = Object.keys(discCatMap).map(function(k) { return { name: k, qty: discCatMap[k].qty, val: discCatMap[k].val }; }).sort(function(a, b) { return b.qty - a.qty; });
+      var dItemArr = Object.keys(discItemMap).map(function(k) { return { name: k, qty: discItemMap[k].qty, val: discItemMap[k].val }; }).sort(function(a, b) { return b.qty - a.qty; }).slice(0, 20);
+
+      var yoyS = pSal > 0 ? ((cSal - pSal) / pSal) * 100 : 0, yoyT = pTrans > 0 ? ((cTrans - pTrans) / pTrans) * 100 : 0, yoyI = pItm > 0 ? ((cItm - pItm) / pItm) * 100 : 0;
+      var t15 = pSal * 1.15; var atv = cTrans > 0 ? Math.round(cSal / cTrans) : 0, upt = cTrans > 0 ? Number((cItm / cTrans).toFixed(2)) : 0;
+      var bStat = "Optimal", bCol = "text-emerald-700", bBd = "Optimal";
+      if (atv < 35000 || upt < 3.0) { bStat = "Warning Upselling"; bCol = "text-amber-700"; bBd = "Warning"; }
+      else if (atv >= 50000 && upt >= 3.0) { bStat = "Strong Basket Size"; bCol = "text-emerald-700"; bBd = "Strong Basket"; }
+      var totCat = 0; Object.values(cMap).forEach(function(c) { totCat += c.sales; }); var tDiv = totCat > 0 ? totCat : 1;
+      var redZoneStores = allList.filter(function(st) { var ach = st.target > 0 ? (st.sales / st.target) * 100 : 0; return ach < 80 && st.shPct > 1.0; });
+      var activeDaysCount = Object.keys(trMap).length || 1; var runRate = cSal > 0 ? (cSal / activeDaysCount) * 30 : 0; var runRateAch = t15 > 0 ? (runRate / t15) * 100 : 0;
+      var spvScorecard = Object.values(spvMap).map(function(s) { s.netScore = s.sales - (s.retVal || 0) - (s.expVal || 0) - (s.shVal || 0); s.effPct = s.sales > 0 ? (s.netScore / s.sales) * 100 : 0; return s; }).sort(function(a, b) { return b.netScore - a.netScore; });
+
+      isMoMSafe = !isAllBulan;
+      return {
+        kpi: {
+          sotm: topStore, tsAlert: shrinkAlert.length > 0 ? shrinkAlert[0] : null,
+          sales: cSal, pSales: pSal, mSal: mSal, mTrans: mTrans, mItm: mItm, mShrink: mShrink,
+          momT: globalMoMTrans, momI: globalMoMItm, momS: globalMoMShrink, newStoresList: newStoresList,
+          isAll: isAllBulan, mom: globalMoM, cSalNew: cSalNew, yoyLFL: yoyLFL, t15: t15,
+          ach: t15 > 0 ? (cSal / t15) * 100 : 0, yoyS: yoyS, trans: cTrans, pTrans: pTrans, yoyT: yoyT,
+          items: cItm, pItems: pItm, yoyI: yoyI, atv: atv, upt: upt,
+          totShr: totShrink, shPct: cSal > 0 ? (totShrink / cSal) * 100 : 0,
+          totRetVal: totReturnVal, totRetQty: totReturnQty, retPct: cSal > 0 ? (totReturnVal / cSal) * 100 : 0,
+          totExpVal: totExpenseVal, totExpCnt: totExpenseCnt, expPct: cSal > 0 ? (totExpenseVal / cSal) * 100 : 0,
+          totDiscVal: totDiscVal, totDiscQty: totDiscQty,
+          lName: active.length > 0 ? active[active.length - 1].nama : "-",
+          lSal: active.length > 0 ? active[active.length - 1].sales : 0,
+          lSpv: active.length > 0 ? active[active.length - 1].spv : "-",
+          bStat: bStat, bCol: bCol, bBd: bBd,
+          tc: Object.values(cMap).sort(function(a, b) { return b.sales - a.sales; }).slice(0, 3).map(function(c) { return { kat: c.kategori, s: c.sales, p: ((c.sales / tDiv) * 100).toFixed(1) }; }),
+          y: targetTahun, pY: compTahun, runRate: runRate, runRateAch: runRateAch
+        },
+        tr: Object.values(trMap).sort(function(a, b) { return a.key > b.key ? 1 : -1; }),
+        kat: Object.values(cMap).sort(function(a, b) { return b.sales - a.sales; }),
+        all: allList, act: active, atvH: atvHigh5, atvL: atvLow5, uptH: uptHigh5, uptL: uptLow5,
+        ts: shrinkAlert.slice(0, 5), tsL: shrinkLow5, trList: returnAlert.slice(0, 5), trLow: returnLow5,
+        teList: expenseAlert.slice(0, 5), teLow: expenseLow5, discH: discHigh5, discL: discLow5,
+        spv: Object.values(spvMap).sort(function(a, b) { return b.sales - a.sales; }),
+        retCats: sortObj(retCatMap).slice(0, 13), retItems: sortObj(retItemMap).slice(0, 20),
+        retReasons: sortObj(retReasonMap), retAreas: sortObj(retAreaMap), tolakList: tolakList,
+        expItems: sortObj(expenseItemMap), discCats: dCatArr, discItems: dItemArr,
+        redZone: redZoneStores, dow: dowMap, spvScore: spvScorecard,
+        promoMonitoring: promoMonitoring, alertKritis: alertKritis, alertMacet: alertMacet,
+        promoTrend: Object.values(pTrendMap).sort(function(a, b) { return a.key - b.key; })
+      };
+    }
+
+    function renderDashboard(d) {
+      document.getElementById("loading").classList.add("hidden");
+      if (activeViewMode === "MAIN") { document.getElementById("content").classList.remove("hidden"); }
+      var stF = document.getElementById("filter-store").value;
+      var blnF = document.getElementById("filter-bulan").value;
+      var spvF = document.getElementById("filter-spv").value;
+      var bTitle = document.getElementById("exec-banner-title");
+      var bSub = document.getElementById("exec-banner-sub");
+      if (bTitle) { bTitle.innerText = "EXECUTIVE DASHBOARD SALES & SHRINKAGE — " + (stF !== "ALL" ? stF : (spvF !== "ALL" ? "TEAM SPV " + spvF : "AREA BARAT 3")); }
+      if (bSub) { bSub.innerText = "Periode: " + (blnF === "ALL" ? "Semua Bulan" : blnF) + " " + d.kpi.y + " | Konsolidasi Performa Cabang, Susut, Retur, Promo & Pengeluaran"; }
+
+      var rzPanel = document.getElementById("red-zone-panel");
+      if (d.redZone && d.redZone.length > 0) {
+        rzPanel.classList.remove("hidden");
+        var rzHtml = '<div class="flex items-center gap-3 mb-2.5"><span class="animate-pulse w-3 h-3 rounded-full bg-red-600"></span><h3 class="text-sm font-black text-red-800 uppercase tracking-widest">RED ZONE ACTION REQUIRED!</h3></div><p class="text-xs text-slate-700 mb-3 font-medium">Toko berikut berada dalam performa sangat kritis dan butuh visit segera (Pencapaian Target < 80% & Susut > 1%):</p><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">';
+        d.redZone.forEach(function(rz) {
+          rzHtml += '<div class="bg-white border border-red-200 p-3 rounded-lg shadow-sm"><div class="flex justify-between items-center"><span class="font-extrabold text-slate-900 text-xs">' + rz.nama + '</span><span class="text-[10px] text-red-800 font-bold px-2 py-0.5 rounded bg-red-100">SPV: ' + rz.spv + '</span></div><div class="mt-2 text-[11px] text-slate-600">Pencapaian: <strong class="text-red-700">' + (rz.target > 0 ? (rz.sales / rz.target) * 100 : 0).toFixed(1) + '%</strong> | Susut: <strong class="text-red-700">' + rz.shPct.toFixed(2) + '%</strong></div></div>';
+        });
+        rzHtml += '</div>';
+        rzPanel.innerHTML = rzHtml;
+      } else { rzPanel.classList.add("hidden"); }
+
+      if (d.kpi.sotm) {
+        document.getElementById("sotm-name").innerText = d.kpi.sotm.nama;
+        document.getElementById("sotm-spv").innerText = "SPV: " + d.kpi.sotm.spv;
+        document.getElementById("sotm-sales").innerText = formatRupiah(d.kpi.sotm.sales);
+        document.getElementById("sotm-growth").innerText = (d.kpi.sotm.gr >= 0 ? "+" : "") + d.kpi.sotm.gr.toFixed(1) + "% YoY";
+        var execText = "Pada periode ini, <strong class='text-red-800'>" + d.kpi.sotm.nama + "</strong> memimpin penjualan tertinggi mencapai <strong class='text-slate-900'>" + formatRupiah(d.kpi.sotm.sales) + "</strong>. ";
+        if (d.kpi.tsAlert) { execText += "Namun, perlu inspeksi segera pada <strong class='text-red-700'>" + d.kpi.tsAlert.nama + " (" + d.kpi.tsAlert.spv + ")</strong> yang mencatat nilai susut terbesar senilai <strong class='text-red-700'>" + formatRupiah(d.kpi.tsAlert.shVal) + "</strong>. "; }
+        else { execText += "Kondisi susut barang (shrinkage) seluruh area terpantau aman. "; }
+        execText += "Total Return tercatat <strong class='text-amber-700'>" + formatRupiah(d.kpi.totRetVal) + " (" + d.kpi.retPct.toFixed(2) + "% Omset)</strong> dan Total Pengeluaran Toko sebesar <strong class='text-teal-700'>" + formatRupiah(d.kpi.totExpVal) + " (" + d.kpi.expPct.toFixed(2) + "% Omset)</strong>.";
+        document.getElementById("exec-summary-text").innerHTML = execText;
+      } else {
+        document.getElementById("exec-summary-text").innerHTML = "Belum ada transaksi penjualan tercatat pada filter ini.";
+        document.getElementById("sotm-name").innerText = "-";
+        document.getElementById("sotm-sales").innerText = "Rp 0";
+      }
+
+      document.getElementById("kpi-sales").innerText = formatRupiah(d.kpi.sales);
+      document.getElementById("kpi-target").innerText = formatRupiah(d.kpi.t15);
+      document.getElementById("kpi-comp-sales-label").innerText = "Lalu: " + formatRupiah(d.kpi.pSales);
+      makeBadge("kpi-yoy-badge", d.kpi.yoyS);
+      document.getElementById("target-progress-bar").style.width = Math.min(d.kpi.ach, 100) + "%";
+      document.getElementById("target-percent-text").innerText = d.kpi.ach.toFixed(1) + "% Capai";
+      document.getElementById("kpi-forecast").innerText = formatRupiah(d.kpi.runRate) + " (" + d.kpi.runRateAch.toFixed(1) + "%)";
+
+      var mc = document.getElementById("mom-container"), mTc = document.getElementById("mom-trans-container"), mIc = document.getElementById("mom-items-container"), mSc = document.getElementById("mom-shrink-container");
+      if (d.kpi.isAll) { mc.classList.add("hidden"); mTc.classList.add("hidden"); mIc.classList.add("hidden"); mSc.classList.add("hidden"); }
+      else {
+        mc.classList.remove("hidden"); document.getElementById("kpi-mom-val").innerText = formatRupiah(d.kpi.mSal); var mb = document.getElementById("kpi-mom-badge"); var pm = d.kpi.mom >= 0; mb.innerText = (pm ? "+" : "") + d.kpi.mom.toFixed(1) + "% MoM"; mb.className = pm ? "font-bold text-emerald-700" : "font-bold text-red-700";
+        mTc.classList.remove("hidden"); document.getElementById("kpi-mom-trans-val").innerText = Number(d.kpi.mTrans).toLocaleString("id-ID") + " Struk"; var mbT = document.getElementById("kpi-mom-trans-badge"); var pmT = d.kpi.momT >= 0; mbT.innerText = (pmT ? "+" : "") + d.kpi.momT.toFixed(1) + "% MoM"; mbT.className = pmT ? "font-bold text-emerald-700" : "font-bold text-red-700";
+        mIc.classList.remove("hidden"); document.getElementById("kpi-mom-items-val").innerText = Number(d.kpi.mItm).toLocaleString("id-ID") + " Pcs"; var mbI = document.getElementById("kpi-mom-items-badge"); var pmI = d.kpi.momI >= 0; mbI.innerText = (pmI ? "+" : "") + d.kpi.momI.toFixed(1) + "% MoM"; mbI.className = pmI ? "font-bold text-emerald-700" : "font-bold text-red-700";
+        mSc.classList.remove("hidden"); document.getElementById("kpi-mom-shrink-val").innerText = formatRupiah(d.kpi.mShrink); var mbS = document.getElementById("kpi-mom-shrink-badge"); var pmS = d.kpi.momS >= 0; mbS.innerText = (pmS ? "+" : "") + d.kpi.momS.toFixed(1) + "% MoM"; mbS.className = !pmS ? "font-bold text-emerald-700" : "font-bold text-red-700";
+      }
+      var ylfl = document.getElementById("sss-yoy-val"); var plfl = d.kpi.yoyLFL >= 0;
+      ylfl.innerText = (plfl ? "+" : "") + d.kpi.yoyLFL.toFixed(1) + "%";
+      ylfl.className = "text-lg font-black " + (plfl ? "text-emerald-700" : "text-red-700");
+      document.getElementById("sss-new-val").innerText = formatRupiah(d.kpi.cSalNew);
+      var sssStoresEl = document.getElementById("sss-new-stores");
+      if (d.kpi.newStoresList && d.kpi.newStoresList.length > 0) { sssStoresEl.innerHTML = d.kpi.newStoresList.join("<br>"); sssStoresEl.classList.remove("hidden"); }
+      else { sssStoresEl.classList.add("hidden"); }
+
+      document.getElementById("kpi-trans").innerText = Number(d.kpi.trans).toLocaleString("id-ID") + " Struk";
+      document.getElementById("kpi-comp-trans").innerText = Number(d.kpi.pTrans).toLocaleString("id-ID") + " Struk";
+      makeBadge("kpi-trans-badge", d.kpi.yoyT);
+      document.getElementById("kpi-atv").innerText = formatRupiah(d.kpi.atv);
+
+      document.getElementById("kpi-items").innerText = Number(d.kpi.items).toLocaleString("id-ID") + " Pcs";
+      document.getElementById("kpi-comp-items").innerText = Number(d.kpi.pItems).toLocaleString("id-ID") + " Pcs";
+      makeBadge("kpi-items-badge", d.kpi.yoyI);
+      document.getElementById("kpi-upt").innerText = d.kpi.upt + " Pcs";
+
+      document.getElementById("kpi-shrink").innerText = formatRupiah(d.kpi.totShr);
+      document.getElementById("kpi-shrink-pct").innerText = d.kpi.shPct.toFixed(2) + "%";
+      var sb = document.getElementById("kpi-shrink-badge");
+      if (d.kpi.shPct > 0.5) { sb.innerText = "Risk Alert"; sb.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-800 border border-red-200"; }
+      else { sb.innerText = "Normal"; sb.className = "text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-200"; }
+
+      document.getElementById("kpi-lowest-name").innerText = d.kpi.lName;
+      document.getElementById("kpi-lowest-sales").innerText = formatRupiah(d.kpi.lSal);
+      document.getElementById("kpi-lowest-spv").innerText = d.kpi.lSpv;
+
+      document.getElementById("kpi-basket-atv").innerText = formatRupiah(d.kpi.atv);
+      document.getElementById("kpi-basket-upt").innerText = d.kpi.upt + " Pcs";
+      document.getElementById("kpi-basket-badge").innerText = d.kpi.bBd;
+      var bs = document.getElementById("kpi-basket-status");
+      bs.innerText = d.kpi.bStat;
+      bs.className = "mt-2 pt-2 border-t border-slate-200 font-bold " + d.kpi.bCol;
+
+      document.getElementById("kpi-return-val").innerText = formatRupiah(d.kpi.totRetVal);
+      document.getElementById("kpi-return-qty").innerText = Number(d.kpi.totRetQty).toLocaleString("id-ID") + " Pcs";
+      document.getElementById("kpi-return-pct").innerText = d.kpi.retPct.toFixed(2) + "%";
+      document.getElementById("kpi-return-pct-badge").innerText = d.kpi.retPct.toFixed(2) + "% Omset";
+
+      document.getElementById("kpi-expense-val").innerText = formatRupiah(d.kpi.totExpVal);
+      document.getElementById("kpi-expense-cnt").innerText = Number(d.kpi.totExpCnt).toLocaleString("id-ID") + " Transaksi";
+      document.getElementById("kpi-expense-pct").innerText = d.kpi.expPct.toFixed(2) + "%";
+      document.getElementById("kpi-expense-pct-badge").innerText = d.kpi.expPct.toFixed(2) + "% Omset";
+
+      document.getElementById("kpi-disc-val").innerText = formatRupiah(d.kpi.totDiscVal);
+      document.getElementById("kpi-disc-qty").innerText = Number(d.kpi.totDiscQty).toLocaleString("id-ID") + " Pcs";
+      var dPct = d.kpi.sales > 0 ? (d.kpi.totDiscVal / d.kpi.sales * 100) : 0;
+      document.getElementById("kpi-disc-pct").innerText = dPct.toFixed(2) + "%";
+      document.getElementById("kpi-disc-pct-badge").innerText = dPct.toFixed(2) + "% Omset";
+
+      var tc = document.getElementById("top-categories-container"); tc.innerHTML = "";
+      if (d.kpi.tc.length === 0) { tc.innerHTML = "<p class='text-xs text-slate-400'>Data kosong</p>"; }
+      else {
+        d.kpi.tc.forEach(function(c, i) {
+          tc.innerHTML += "<div class='bg-slate-50 border border-slate-200 rounded-lg p-3 flex justify-between items-center gap-3'><div><span class='text-[10px] font-bold text-slate-500 block uppercase'>Rank #" + (i + 1) + "</span><span class='text-xs font-black truncate block text-slate-900 max-w-[140px]'>" + c.kat + "</span><span class='text-[11px] font-semibold text-slate-600'>" + formatRupiah(c.s) + "</span></div><span class='text-xs font-extrabold px-2.5 py-1 rounded bg-red-100 text-red-800 border border-red-200'>" + c.p + "%</span></div>";
+        });
+      }
+
+      document.getElementById("trend-subtitle").innerText = "Tahun " + d.kpi.y + " vs " + d.kpi.pY;
+      if (trendChartInstance) trendChartInstance.destroy();
+      trendChartInstance = new Chart(document.getElementById("trendChart").getContext("2d"), {
+        type: "line",
+        data: {
+          labels: d.tr.map(function(t) { return t.label; }),
+          datasets: [
+            { label: d.kpi.y, data: d.tr.map(function(t) { return t.sales; }), borderColor: "#b91c1c", backgroundColor: "rgba(185, 28, 28, 0.12)", borderWidth: 2.5, fill: true },
+            { label: d.kpi.pY, data: d.tr.map(function(t) { return t.pSales; }), borderColor: "#94a3b8", borderDash: [4, 4], borderWidth: 2, fill: false }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } }, y: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } } }, plugins: { legend: { labels: { color: "#334155" } } } }
+      });
+
+      var dowLabels = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      var dowData = [d.dow[0], d.dow[1], d.dow[2], d.dow[3], d.dow[4], d.dow[5], d.dow[6]];
+      if (dowChartInstance) dowChartInstance.destroy();
+      dowChartInstance = new Chart(document.getElementById("dowChart").getContext("2d"), {
+        type: "bar",
+        data: { labels: dowLabels, datasets: [{ label: "Omset Berdasarkan Hari", data: dowData, backgroundColor: "#059669", borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } }, y: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } } } }
+      });
+
+      var k8 = d.kat.slice(0, 8);
+      if (catChartInstance) catChartInstance.destroy();
+      catChartInstance = new Chart(document.getElementById("catChart").getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: k8.map(function(k) { return k.kategori; }),
+          datasets: [
+            { label: "Omset " + d.kpi.y + " (Jt)", data: k8.map(function(k) { return Math.round(k.sales / 1000000); }), backgroundColor: "#991b1b" },
+            { label: "Omset " + d.kpi.pY + " (Jt)", data: k8.map(function(k) { return Math.round(k.pSales / 1000000); }), backgroundColor: "#cbd5e1" }
+          ]
+        },
+        options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } }, y: { grid: { color: "#e2e8f0" }, ticks: { color: "#334155" } } }, plugins: { legend: { labels: { color: "#334155" } } } }
+      });
+
+      if (catQtyChartInstance) catQtyChartInstance.destroy();
+      catQtyChartInstance = new Chart(document.getElementById("catQtyChart").getContext("2d"), {
+        type: "bar",
+        data: {
+          labels: k8.map(function(k) { return k.kategori; }),
+          datasets: [
+            { label: "Qty " + d.kpi.y + " (Pcs)", data: k8.map(function(k) { return k.items; }), backgroundColor: "#0d9488" },
+            { label: "Qty " + d.kpi.pY + " (Pcs)", data: k8.map(function(k) { return k.pItems; }), backgroundColor: "#cbd5e1" }
+          ]
+        },
+        options: { indexAxis: "y", responsive: true, maintainAspectRatio: false, scales: { x: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } }, y: { grid: { color: "#e2e8f0" }, ticks: { color: "#334155" } } }, plugins: { legend: { labels: { color: "#334155" } } } }
+      });
+
+      var t10 = d.act.slice(0, 10);
+      if (storeChartInstance) storeChartInstance.destroy();
+      storeChartInstance = new Chart(document.getElementById("topStoreChart").getContext("2d"), {
+        type: "bar",
+        data: { labels: t10.map(function(s) { return s.nama; }), datasets: [{ data: t10.map(function(s) { return s.sales; }), backgroundColor: "#991b1b", borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } }, y: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } } } }
+      });
+
+      var b10 = d.act.slice().sort(function(a, b) { return a.sales - b.sales; }).slice(0, 10);
+      if (bottomStoreChartInstance) bottomStoreChartInstance.destroy();
+      bottomStoreChartInstance = new Chart(document.getElementById("bottomStoreChart").getContext("2d"), {
+        type: "bar",
+        data: { labels: b10.map(function(s) { return s.nama; }), datasets: [{ data: b10.map(function(s) { return s.sales; }), backgroundColor: "#d97706", borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } }, y: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } } } }
+      });
+
+      var hp = [], wp = [], mS = d.act.length > 0 ? Math.max.apply(null, d.act.map(function(s) { return s.sales; })) : 1;
+      d.act.forEach(function(s) {
+        var pt = { x: s.upt, y: s.atv, r: Math.max(5, Math.round((s.sales / mS) * 20)), storeName: s.nama, spv: s.spv, sales: s.sales };
+        if (s.atv >= 35000 && s.upt >= 3.0) hp.push(pt); else wp.push(pt);
+      });
+      if (bubbleChartInstance) bubbleChartInstance.destroy();
+      bubbleChartInstance = new Chart(document.getElementById("bubbleChart").getContext("2d"), {
+        type: "bubble",
+        data: {
+          datasets: [
+            { label: "Optimal", data: hp, backgroundColor: "rgba(5, 150, 105, 0.55)", borderColor: "#059669", borderWidth: 1.5 },
+            { label: "Warning", data: wp, backgroundColor: "rgba(185, 28, 28, 0.55)", borderColor: "#b91c1c", borderWidth: 1.5 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: "#334155", font: { size: 10 } } },
+            tooltip: { callbacks: { label: function(context) { var dc = context.raw; return dc.storeName + " (" + dc.spv + ") | UPT: " + dc.x + " Pcs | ATV: Rp " + Number(dc.y).toLocaleString("id-ID") + " | Omzet: Rp " + (dc.sales / 1000000).toFixed(1) + "Jt"; } } }
+          },
+          scales: {
+            x: { title: { display: true, text: "UPT (Barang per Struk)", color: "#475569", font: { size: 10, weight: "bold" } }, grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } },
+            y: { title: { display: true, text: "ATV (Rupiah per Struk)", color: "#475569", font: { size: 10, weight: "bold" } }, grid: { color: "#e2e8f0" }, ticks: { color: "#475569", callback: function(v) { return "Rp " + (v / 1000).toFixed(0) + "rb"; } } }
+          }
+        }
+      });
+
+      var sl = document.getElementById("top-shrink-list"); sl.innerHTML = "";
+      if (d.ts.length === 0) sl.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada susut tercatat.</p>";
+      else d.ts.forEach(function(s) { sl.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + "</span></div><div class='text-right'><span class='font-extrabold text-red-700 block'>" + formatRupiah(s.shVal) + "</span><span class='text-[10px] text-red-600 font-semibold'>" + s.shPct.toFixed(2) + "% Omzet</span></div></div>"; });
+
+      var atvHBox = document.getElementById("top-atv-list"); atvHBox.innerHTML = "";
+      if (d.atvH.length === 0) atvHBox.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data transaksi.</p>";
+      else d.atvH.forEach(function(s, idx) { atvHBox.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + Number(s.trans).toLocaleString("id-ID") + " Struk</span></div><div class='text-right'><span class='font-extrabold text-sky-700 block'>" + formatRupiah(s.atv) + "/Struk</span><span class='text-[10px] text-slate-500'>Omzet: " + formatRupiah(s.sales) + "</span></div></div>"; });
+
+      var atvLBox = document.getElementById("low-atv-list"); atvLBox.innerHTML = "";
+      if (d.atvL.length === 0) atvLBox.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data transaksi.</p>";
+      else d.atvL.forEach(function(s, idx) { atvLBox.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + Number(s.trans).toLocaleString("id-ID") + " Struk</span></div><div class='text-right'><span class='font-extrabold text-amber-700 block'>" + formatRupiah(s.atv) + "/Struk</span><span class='text-[10px] text-slate-500'>Omzet: " + formatRupiah(s.sales) + "</span></div></div>"; });
+
+      var uptHBox = document.getElementById("top-upt-list"); uptHBox.innerHTML = "";
+      if (d.uptH.length === 0) uptHBox.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data unit terjual.</p>";
+      else d.uptH.forEach(function(s, idx) { uptHBox.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + Number(s.items).toLocaleString("id-ID") + " Pcs</span></div><div class='text-right'><span class='font-extrabold text-teal-700 block'>" + s.upt + " Pcs/Struk</span><span class='text-[10px] text-slate-500'>ATV: " + formatRupiah(s.atv) + "</span></div></div>"; });
+
+      var uptLBox = document.getElementById("low-upt-list"); uptLBox.innerHTML = "";
+      if (d.uptL.length === 0) uptLBox.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data unit terjual.</p>";
+      else d.uptL.forEach(function(s, idx) { uptLBox.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + Number(s.items).toLocaleString("id-ID") + " Pcs</span></div><div class='text-right'><span class='font-extrabold text-amber-700 block'>" + s.upt + " Pcs/Struk</span><span class='text-[10px] text-slate-500'>ATV: " + formatRupiah(s.atv) + "</span></div></div>"; });
+
+      var ksHBox = document.getElementById("top-ks-list"); ksHBox.innerHTML = "";
+      if (d.ts.length === 0) ksHBox.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada susut tercatat.</p>";
+      else d.ts.forEach(function(s, idx) { ksHBox.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + "</span></div><div class='text-right'><span class='font-extrabold text-red-700 block'>" + formatRupiah(s.shVal) + "</span><span class='text-[10px] font-semibold text-red-600'>" + s.shPct.toFixed(2) + "% dari Omset</span></div></div>"; });
+
+      var ksLBox = document.getElementById("low-ks-list"); ksLBox.innerHTML = "";
+      if (d.tsL.length === 0) ksLBox.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada susut tercatat.</p>";
+      else d.tsL.forEach(function(s, idx) { ksLBox.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + "</span></div><div class='text-right'><span class='font-extrabold text-emerald-700 block'>" + formatRupiah(s.shVal) + "</span><span class='text-[10px] font-semibold text-emerald-600'>" + s.shPct.toFixed(2) + "% dari Omset</span></div></div>"; });
+
+      var elT = document.getElementById("top-expense-list"); elT.innerHTML = "";
+      if (d.teList.length === 0) elT.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data pengeluaran pada periode ini.</p>";
+      else d.teList.forEach(function(s, idx) { elT.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + s.expCnt + " Pengajuan</span></div><div class='text-right'><span class='font-extrabold text-sky-700 block'>" + formatRupiah(s.expVal) + "</span><span class='text-[10px] font-semibold text-sky-600'>" + s.expPct.toFixed(2) + "% dari Omset</span></div></div>"; });
+
+      var elLow = document.getElementById("low-expense-list"); elLow.innerHTML = "";
+      if (d.teLow.length === 0) elLow.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data pengeluaran pada periode ini.</p>";
+      else d.teLow.forEach(function(s, idx) { elLow.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + s.expCnt + " Pengajuan</span></div><div class='text-right'><span class='font-extrabold text-teal-700 block'>" + formatRupiah(s.expVal) + "</span><span class='text-[10px] font-semibold text-teal-600'>" + s.expPct.toFixed(2) + "% dari Omset</span></div></div>"; });
+
+      var rlT = document.getElementById("top-return-list"); rlT.innerHTML = "";
+      if (d.trList.length === 0) rlT.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data return pada periode ini.</p>";
+      else d.trList.forEach(function(s, idx) { rlT.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + Number(s.retQty).toLocaleString("id-ID") + " Pcs</span></div><div class='text-right'><span class='font-extrabold text-orange-700 block'>" + formatRupiah(s.retVal) + "</span><span class='text-[10px] font-semibold text-orange-600'>" + s.retPct.toFixed(2) + "% dari Omset</span></div></div>"; });
+
+      var rlLow = document.getElementById("low-return-list"); rlLow.innerHTML = "";
+      if (d.trLow.length === 0) rlLow.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data return pada periode ini.</p>";
+      else d.trLow.forEach(function(s, idx) { rlLow.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + Number(s.retQty).toLocaleString("id-ID") + " Pcs</span></div><div class='text-right'><span class='font-extrabold text-emerald-700 block'>" + formatRupiah(s.retVal) + "</span><span class='text-[10px] font-semibold text-emerald-600'>" + s.retPct.toFixed(2) + "% dari Omset</span></div></div>"; });
+
+      var dlH = document.getElementById("top-disc-list"); dlH.innerHTML = "";
+      if (d.discH.length === 0) dlH.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data promo.</p>";
+      else d.discH.forEach(function(s, idx) { dlH.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + formatRupiah(s.discVal) + "</span></div><div class='text-right'><span class='font-extrabold text-fuchsia-700 block'>" + Number(s.discQty).toLocaleString("id-ID") + " Pcs</span></div></div>"; });
+
+      var dlL = document.getElementById("low-disc-list"); dlL.innerHTML = "";
+      if (d.discL.length === 0) dlL.innerHTML = "<p class='text-xs py-3 text-slate-400'>Tidak ada data promo.</p>";
+      else d.discL.forEach(function(s, idx) { dlL.innerHTML += "<div class='py-2.5 flex justify-between text-xs'><div><span class='font-bold text-slate-800'>" + (idx + 1) + ". " + s.nama + "</span><span class='text-[10px] block text-slate-500'>" + s.spv + " | " + formatRupiah(s.discVal) + "</span></div><div class='text-right'><span class='font-extrabold text-slate-700 block'>" + Number(s.discQty).toLocaleString("id-ID") + " Pcs</span></div></div>"; });
+
+      var dcl = document.getElementById("disc-cat-list"); dcl.innerHTML = "";
+      if (d.discCats.length === 0) dcl.innerHTML = "<p class='text-xs py-2 text-slate-400'>Data kosong</p>";
+      else d.discCats.forEach(function(c, i) { dcl.innerHTML += "<div class='py-2 flex justify-between items-center'><div><span class='font-bold text-slate-800 text-xs'>" + (i + 1) + ". " + c.name + "</span></div><div class='text-right'><span class='font-extrabold text-fuchsia-700 text-xs block'>" + Number(c.qty).toLocaleString("id-ID") + " Pcs</span><span class='text-[10px] text-slate-500'>" + formatRupiah(c.val) + "</span></div></div>"; });
+
+      var dil = document.getElementById("disc-item-list"); dil.innerHTML = "";
+      if (d.discItems.length === 0) dil.innerHTML = "<p class='text-xs py-2 text-slate-400'>Data kosong</p>";
+      else d.discItems.forEach(function(c, i) { dil.innerHTML += "<div class='py-2 flex justify-between items-center'><div><span class='font-bold text-slate-800 text-xs max-w-[250px] truncate block' title='" + c.name + "'>" + (i + 1) + ". " + c.name + "</span></div><div class='text-right'><span class='font-extrabold text-fuchsia-700 text-xs block'>" + Number(c.qty).toLocaleString("id-ID") + " Pcs</span><span class='text-[10px] text-slate-500'>" + formatRupiah(c.val) + "</span></div></div>"; });
+
+      if (promoDonutChartInstance) promoDonutChartInstance.destroy();
+      promoDonutChartInstance = new Chart(document.getElementById("promoDonutChart").getContext("2d"), {
+        type: "doughnut",
+        data: { labels: ["Omset Promo/Diskon", "Omset Normal"], datasets: [{ data: [d.kpi.totDiscVal, Math.max(0, d.kpi.sales - d.kpi.totDiscVal)], backgroundColor: ["#c026d3", "#0284c7"], borderWidth: 2, borderColor: "#ffffff", hoverOffset: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: "bottom", labels: { color: "#334155", font: { size: 10 } } } }, cutout: "68%" }
+      });
+
+      var ptSub = document.getElementById("promo-trend-subtitle");
+      if (ptSub) { ptSub.innerText = d.kpi.isAll ? "Tren Bulanan (Akumulasi)" : "Tren Mingguan (" + document.getElementById("filter-bulan").value + ")"; }
+      if (promoTrendChartInstance) promoTrendChartInstance.destroy();
+      promoTrendChartInstance = new Chart(document.getElementById("promoTrendChart").getContext("2d"), {
+        type: "bar",
+        data: { labels: d.promoTrend.map(function(t) { return t.label; }), datasets: [{ label: "Unit Terjual (Pcs)", data: d.promoTrend.map(function(t) { return t.qty; }), backgroundColor: "#c026d3", borderRadius: 4 }] },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } }, y: { grid: { color: "#e2e8f0" }, ticks: { color: "#475569" } } } }
+      });
+
+      var rc = document.getElementById("ret-cat-list"); rc.innerHTML = "";
+      if (d.retCats.length === 0) rc.innerHTML = "<p class='text-xs py-2 text-slate-400'>Data kosong</p>";
+      else d.retCats.forEach(function(c, i) { rc.innerHTML += "<div class='py-2 flex justify-between items-center'><div><span class='font-bold text-slate-800 text-xs'>" + (i + 1) + ". " + c.name + "</span></div><div class='font-extrabold text-orange-700 text-xs'>" + Number(c.val).toLocaleString("id-ID") + " Pcs</div></div>"; });
+
+      var ri = document.getElementById("ret-item-list"); ri.innerHTML = "";
+      if (d.retItems.length === 0) ri.innerHTML = "<p class='text-xs py-2 text-slate-400'>Data kosong</p>";
+      else d.retItems.forEach(function(c, i) { ri.innerHTML += "<div class='py-2 flex justify-between items-center'><div><span class='font-bold text-slate-800 text-xs max-w-[250px] truncate block' title='" + c.name + "'>" + (i + 1) + ". " + c.name + "</span></div><div class='font-extrabold text-orange-700 text-xs'>" + Number(c.val).toLocaleString("id-ID") + " Pcs</div></div>"; });
+
+      var rr = document.getElementById("ret-reason-list"); rr.innerHTML = "";
+      if (d.retReasons.length === 0) rr.innerHTML = "<p class='text-xs py-2 text-slate-400'>Data kosong</p>";
+      else d.retReasons.forEach(function(c) { rr.innerHTML += "<div class='py-1.5 flex justify-between items-center'><div><span class='font-semibold text-slate-700 text-[11px]'>" + (c.name || "-") + "</span></div><div class='font-bold text-orange-700 text-[11px]'>" + Number(c.val).toLocaleString("id-ID") + " Pcs</div></div>"; });
+
+      var ra = document.getElementById("ret-area-list"); ra.innerHTML = "";
+      if (d.retAreas.length === 0) ra.innerHTML = "<p class='text-xs py-2 text-slate-400'>Data kosong</p>";
+      else d.retAreas.forEach(function(c) { ra.innerHTML += "<div class='py-1.5 flex justify-between items-center'><div><span class='font-semibold text-slate-700 text-[11px]'>" + (c.name || "-") + "</span></div><div class='font-bold text-orange-700 text-[11px]'>" + Number(c.val).toLocaleString("id-ID") + " Pcs</div></div>"; });
+
+      var rt = document.getElementById("ret-reject-tbody"); rt.innerHTML = "";
+      if (d.tolakList.length === 0) rt.innerHTML = "<tr><td colspan='7' class='p-3 text-center text-slate-400'>Tidak ada retur yang ditolak pada periode ini.</td></tr>";
+      else d.tolakList.forEach(function(r) { rt.innerHTML += "<tr class='hover:bg-red-50/40 transition border-b border-slate-200'><td class='p-2 whitespace-nowrap text-slate-600'>" + r.tgl + "</td><td class='p-2 font-bold text-slate-900'>" + r.toko + "</td><td class='p-2 text-slate-600'>" + r.spv + "</td><td class='p-2 max-w-[150px] text-slate-800 truncate' title='" + r.barang + "'>" + r.barang + "</td><td class='p-2 text-center font-bold text-red-700'>" + Number(r.qty).toLocaleString("id-ID") + "</td><td class='p-2 text-right font-bold text-red-700'>" + formatRupiah(r.val) + "</td><td class='p-2 text-red-700 italic'>" + (r.alasan || "-") + "</td></tr>"; });
+
+      document.getElementById("exp-total-label").innerText = "Total Keseluruhan: " + formatRupiah(d.kpi.totExpVal);
+      var ei = document.getElementById("exp-item-list"); ei.innerHTML = "";
+      if (d.expItems.length === 0) ei.innerHTML = "<p class='text-xs py-2 text-slate-400 col-span-full'>Data kosong</p>";
+      else d.expItems.forEach(function(c, i) { ei.innerHTML += "<div class='py-2 border-b border-slate-200 flex justify-between items-center gap-2'><div><span class='font-bold text-slate-700 text-[11px] truncate block max-w-[180px]' title='" + c.name + "'>" + (i + 1) + ". " + c.name + "</span></div><div class='font-extrabold text-sky-700 text-xs'>" + formatRupiah(c.val) + "</div></div>"; });
+
+      var krBox = document.getElementById("promo-kritis-list"); var krHtml = "";
+      if (!d.alertKritis || d.alertKritis.length === 0) krHtml = "<p class='text-xs py-2 text-slate-400'>Stok aman, tidak ada barang promo kritis.</p>";
+      else d.alertKritis.slice(0, 50).forEach(function(x) { krHtml += "<div class='py-2 flex justify-between items-center text-xs'><div><span class='font-bold text-slate-900 block'>" + x.toko + "</span><span class='text-[10px] text-slate-500 truncate max-w-[170px] block' title='" + x.barang + "'>" + x.barang + "</span></div><div class='text-right'><span class='font-black text-red-700 block'>Sisa: " + x.stock + " Pcs</span><span class='text-[10px] text-slate-500'>Terjual: " + x.sold + "</span></div></div>"; });
+      krBox.innerHTML = krHtml;
+
+      var mcBox = document.getElementById("promo-macet-list"); var mcHtml = "";
+      if (!d.alertMacet || d.alertMacet.length === 0) mcHtml = "<p class='text-xs py-2 text-slate-400'>Tidak ada barang promo macet.</p>";
+      else d.alertMacet.slice(0, 50).forEach(function(x) { mcHtml += "<div class='py-2 flex justify-between items-center text-xs'><div><span class='font-bold text-slate-900 block'>" + x.toko + "</span><span class='text-[10px] text-slate-500 truncate max-w-[170px] block' title='" + x.barang + "'>" + x.barang + "</span></div><div class='text-right'><span class='font-black text-amber-700 block'>Sisa: " + x.stock + " Pcs</span><span class='text-[10px] text-slate-500'>Terjual: " + x.sold + "</span></div></div>"; });
+      mcBox.innerHTML = mcHtml;
+
+      var tbStock = document.getElementById("promo-stock-tbody"); var tbStockHtml = "";
+      if (!d.promoMonitoring || d.promoMonitoring.length === 0) tbStockHtml = "<tr><td colspan='7' class='p-3 text-center text-slate-400'>Tidak ada data promo & stok.</td></tr>";
+      else d.promoMonitoring.slice(0, 300).forEach(function(x) { tbStockHtml += "<tr class='hover:bg-slate-50 transition border-b border-slate-200'><td class='p-2.5 font-bold text-slate-900'>" + x.toko + "</td><td class='p-2.5 text-slate-700 max-w-[170px] truncate' title='" + x.barang + "'>" + x.barang + "</td><td class='p-2.5 font-semibold text-fuchsia-700'>" + x.kat + "</td><td class='p-2.5 text-center font-bold text-emerald-700'>" + x.sold + "</td><td class='p-2.5 text-center font-bold text-slate-900'>" + x.stock + "</td><td class='p-2.5 text-center font-extrabold text-sky-700'>" + x.str.toFixed(1) + "%</td><td class='p-2.5 font-bold " + x.color + "'>" + x.status + "</td></tr>"; });
+      tbStock.innerHTML = tbStockHtml;
+
+      globalStoreData = d.all; currentTokoSort = "sales"; tokoSortAsc = false; filterStoreTable();
+
+      var ssb = document.getElementById("spv-scorecard-tbody"); ssb.innerHTML = "";
+      d.spvScore.forEach(function(s, idx) {
+        var pot = (s.retVal || 0) + (s.expVal || 0) + (s.shVal || 0);
+        var icon = idx === 0 ? "🥇 " : (idx === 1 ? "🥈 " : (idx === 2 ? "🥉 " : ""));
+        ssb.innerHTML += "<tr class='hover:bg-slate-50 border-b border-slate-200'><td class='p-3 font-bold text-slate-600'>" + (idx + 1) + "</td><td class='p-3 font-bold text-slate-900'>" + icon + s.nama + "</td><td class='p-3 text-right text-slate-600'>" + formatRupiah(s.sales) + "</td><td class='p-3 text-right text-red-700 font-semibold'>-" + formatRupiah(pot) + "</td><td class='p-3 text-right font-black text-emerald-700'>" + formatRupiah(s.netScore) + "</td><td class='p-3 text-center'><span class='px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200'>" + s.effPct.toFixed(1) + "%</span></td></tr>";
+      });
+
+      globalSpvData = d.spv.map(function(s) {
+        s.target = s.pSales * 1.15;
+        s.yoy = s.pSales > 0 ? ((s.sales - s.pSales) / s.pSales) * 100 : 0;
+        s.atv = s.trans > 0 ? s.sales / s.trans : 0;
+        s.mom = isMoMSafe ? (s.mSales > 0 ? ((s.sales - s.mSales) / s.mSales) * 100 : (s.sales > 0 ? 100 : 0)) : 0;
+        return s;
+      });
+      spvSortKey = "sales"; spvSortAsc = false; renderSpvTable();
+    }
+
+    function renderSidakSheet(d) {
+      var stVal = document.getElementById("filter-store").value;
+      var blnVal = document.getElementById("filter-bulan").value;
+      var thnVal = document.getElementById("filter-tahun").value;
+      var stObj = d.all.length > 0 ? d.all[0] : null;
+      var storeTitle = stVal === "ALL" ? (stObj ? stObj.nama + " (Pilih 1 Toko di Filter Atas)" : "Semua Cabang Area Barat 3") : stVal;
+      var spvTitle = stObj ? stObj.spv : (document.getElementById("filter-spv").value === "ALL" ? "Semua SPV" : document.getElementById("filter-spv").value);
+      var perTitle = (blnVal === "ALL" ? "Semua Bulan" : blnVal) + " " + (thnVal === "ALL" ? "2026" : thnVal);
+
+      document.getElementById("sdk-store-name").innerText = storeTitle;
+      document.getElementById("sdk-meta-info").innerText = "Supervisor: " + spvTitle + " | Periode Evaluasi: " + perTitle + (stObj && stObj.note ? " | Ket: " + stObj.note : "");
+      document.getElementById("sdk-print-date").innerText = "Dicetak: " + new Date().toLocaleDateString("id-ID", { day: "2-digit", month: "long", year: "numeric" });
+      document.getElementById("sdk-sign-spv").innerText = spvTitle !== "-" && spvTitle !== "Semua SPV" ? spvTitle : "( ............................ )";
+
+      var ach = d.kpi.ach; var shPct = d.kpi.shPct;
+      var stBadge = document.getElementById("sdk-status-badge");
+      if (ach < 80 && shPct > 1.0) { stBadge.innerText = "🚨 RED ZONE (KRITIS)"; stBadge.className = "mt-1 inline-block px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-red-600 text-white border border-white/40 shadow"; }
+      else if (ach < 85 || shPct > 0.5) { stBadge.innerText = "⚠️ PERLU EVALUASI"; stBadge.className = "mt-1 inline-block px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-amber-400 text-slate-950 shadow"; }
+      else { stBadge.innerText = "✅ ON TRACK (SEHAT)"; stBadge.className = "mt-1 inline-block px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider bg-emerald-400 text-slate-950 shadow"; }
+
+      document.getElementById("sdk-sales").innerText = formatRupiah(d.kpi.sales);
+      document.getElementById("sdk-target").innerText = formatRupiah(d.kpi.t15);
+      document.getElementById("sdk-ach-bar").style.width = Math.min(ach, 100) + "%";
+      document.getElementById("sdk-ach-txt").innerText = ach.toFixed(1) + "% Capai";
+      var yoyB = document.getElementById("sdk-yoy-badge"); var py = d.kpi.yoyS >= 0;
+      yoyB.innerText = (py ? "+" : "") + d.kpi.yoyS.toFixed(1) + "% YoY";
+      yoyB.className = "text-[10px] font-extrabold px-1.5 py-0.5 rounded " + (py ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800");
+      document.getElementById("sdk-mom-txt").innerText = d.kpi.isAll ? "Proyeksi: " + formatRupiah(d.kpi.runRate) : "MoM: " + (d.kpi.mom >= 0 ? "+" : "") + d.kpi.mom.toFixed(1) + "%";
+
+      document.getElementById("sdk-atv").innerText = formatRupiah(d.kpi.atv);
+      document.getElementById("sdk-upt").innerText = d.kpi.upt + " Pcs";
+      document.getElementById("sdk-trans").innerText = Number(d.kpi.trans).toLocaleString("id-ID");
+      document.getElementById("sdk-items").innerText = Number(d.kpi.items).toLocaleString("id-ID");
+      var bskB = document.getElementById("sdk-basket-badge");
+      bskB.innerText = d.kpi.bBd;
+      bskB.className = "text-[10px] font-extrabold px-1.5 py-0.5 rounded " + (d.kpi.bBd === "Warning" ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800");
+
+      document.getElementById("sdk-shr-val").innerText = formatRupiah(d.kpi.totShr);
+      document.getElementById("sdk-shr-pct").innerText = shPct.toFixed(2) + "% Omset";
+      var shrB = document.getElementById("sdk-shr-badge");
+      shrB.innerText = shPct > 0.5 ? "Melewati Batas" : "Terkendali";
+      shrB.className = "text-[10px] font-extrabold px-1.5 py-0.5 rounded " + (shPct > 0.5 ? "bg-red-100 text-red-800" : "bg-emerald-100 text-emerald-800");
+
+      document.getElementById("sdk-exp-val").innerText = formatRupiah(d.kpi.totExpVal) + " (" + d.kpi.expPct.toFixed(1) + "%)";
+      document.getElementById("sdk-ret-val").innerText = formatRupiah(d.kpi.totRetVal) + " (" + d.kpi.totRetQty + " Pcs)";
+      document.getElementById("sdk-disc-qty").innerText = Number(d.kpi.totDiscQty).toLocaleString("id-ID") + " Pcs (" + formatRupiah(d.kpi.totDiscVal) + ")";
+      var totStokPrm = 0; d.all.forEach(function(s) { totStokPrm += (s.stokPromo || 0); });
+      document.getElementById("sdk-stok-promo").innerText = Number(totStokPrm).toLocaleString("id-ID") + " Pcs";
+
+      var arahan = [];
+      if (ach < 85) { arahan.push("<strong>Target Penjualan:</strong> Realisasi baru mencapai <strong>" + ach.toFixed(1) + "%</strong> dari target (+15%). Genjot penawaran produk impulsif di area kasir dan pastikan stok barang terlaris selalu terisi penuh di rak utama."); }
+      else { arahan.push("<strong>Performa Penjualan:</strong> Pencapaian target berada di <strong>" + ach.toFixed(1) + "%</strong>. Pertahankan ritme pelayanan dan jaga ketersediaan stok barang fast-moving."); }
+      if (d.kpi.upt < 3.0 || d.kpi.atv < 35000) { arahan.push("<strong>Evaluasi SOP Kasir (Upselling):</strong> Rata-rata keranjang belanja masih di angka <strong>ATV " + formatRupiah(d.kpi.atv) + "</strong> dan <strong>UPT " + d.kpi.upt + " Pcs</strong> (Standar minimal: Rp 35.000 & 3.0 Pcs/struk). Wajibkan kasir menawarkan produk tebus murah/promo di setiap transaksi."); }
+      else { arahan.push("<strong>Kualitas Transaksi Kasir:</strong> ATV (" + formatRupiah(d.kpi.atv) + ") dan UPT (" + d.kpi.upt + " Pcs) sudah memenuhi standar. Konsistenkan penawaran barang promo di meja kasir."); }
+      if (shPct > 0.5) { arahan.push("<strong>Peringatan Susut (Shrinkage):</strong> Rasio susut mencapai <strong>" + shPct.toFixed(2) + "% (" + formatRupiah(d.kpi.totShr) + ")</strong>, melewati batas toleransi 0.50%. Lakukan SO parsial harian pada produk rawan hilang, cek titik buta CCTV, dan perketat pengecekan barang datang."); }
+      else { arahan.push("<strong>Kontrol Susut Barang:</strong> Shrinkage terkendali di angka " + shPct.toFixed(2) + "%. Tetap jalankan rutinitas SO harian dan pengawasan area titik rawan."); }
+      if (d.alertKritis.length > 0 || d.alertMacet.length > 0) { arahan.push("<strong>Eksekusi Barang Promo:</strong> Ditemukan <strong>" + d.alertKritis.length + " item promo kritis/habis</strong> (segera keluarkan stok gudang ke display) dan <strong>" + d.alertMacet.length + " item promo macet</strong> (evaluasi posisi pajangan, kebersihan produk, dan pasang label harga/POP promo yang jelas)."); }
+      document.getElementById("sdk-arahan-list").innerHTML = arahan.map(function(a) { return "<li>" + a + "</li>"; }).join("");
+
+      var topSumEl = document.getElementById("sdk-top-summary");
+      var topHtml = "<div class='py-1 font-extrabold text-red-900 uppercase text-[10px]'>Top Kategori Penjualan:</div>";
+      if (d.kat.length === 0) { topHtml += "<p class='text-slate-400 py-1'>Belum ada data kategori.</p>"; }
+      else { d.kat.slice(0, 3).forEach(function(k, idx) { topHtml += "<div class='py-1 flex justify-between'><span>" + (idx + 1) + ". " + k.kategori + " (" + Number(k.items).toLocaleString("id-ID") + " Pcs)</span><strong class='text-slate-900'>" + formatRupiah(k.sales) + "</strong></div>"; }); }
+      topHtml += "<div class='py-1 mt-1 font-extrabold text-fuchsia-900 uppercase text-[10px]'>Top Produk Promo Terlaris:</div>";
+      if (d.discItems.length === 0) { topHtml += "<p class='text-slate-400 py-1'>Belum ada penjualan promo.</p>"; }
+      else { d.discItems.slice(0, 3).forEach(function(it, idx) { topHtml += "<div class='py-1 flex justify-between'><span class='truncate max-w-[200px]'>" + (idx + 1) + ". " + it.name + "</span><strong class='text-fuchsia-700'>" + it.qty + " Pcs</strong></div>"; }); }
+      topSumEl.innerHTML = topHtml;
+
+      var opsSumEl = document.getElementById("sdk-ops-summary");
+      var opsHtml = "<div class='py-1 font-extrabold text-teal-900 uppercase text-[10px]'>Rincian Pengeluaran Terbesar:</div>";
+      if (d.expItems.length === 0) { opsHtml += "<p class='text-slate-400 py-1'>Tidak ada pengeluaran tercatat.</p>"; }
+      else { d.expItems.slice(0, 3).forEach(function(ex, idx) { opsHtml += "<div class='py-1 flex justify-between'><span class='truncate max-w-[200px]'>" + (idx + 1) + ". " + ex.name + "</span><strong class='text-teal-700'>" + formatRupiah(ex.val) + "</strong></div>"; }); }
+      opsHtml += "<div class='py-1 mt-1 font-extrabold text-amber-900 uppercase text-[10px]'>Penyebab / Barang Retur Terbanyak:</div>";
+      if (d.retItems.length === 0) { opsHtml += "<p class='text-slate-400 py-1'>Tidak ada retur tercatat.</p>"; }
+      else { d.retItems.slice(0, 3).forEach(function(rt, idx) { opsHtml += "<div class='py-1 flex justify-between'><span class='truncate max-w-[200px]'>" + (idx + 1) + ". " + rt.name + "</span><strong class='text-amber-700'>" + rt.val + " Pcs</strong></div>"; }); }
+      opsSumEl.innerHTML = opsHtml;
+
+      var krTb = document.getElementById("sdk-kritis-tbody");
+      if (d.alertKritis.length === 0) { krTb.innerHTML = "<tr><td colspan='4' class='p-3 text-center text-slate-400'>Tidak ada barang promo kritis.</td></tr>"; }
+      else { krTb.innerHTML = d.alertKritis.slice(0, 8).map(function(x) { return "<tr><td class='p-2 font-semibold text-slate-800 truncate max-w-[180px]'>" + x.barang + "</td><td class='p-2 text-center font-bold text-emerald-700'>" + x.sold + "</td><td class='p-2 text-center font-black text-red-700'>" + x.stock + "</td><td class='p-2 text-center'><span class='inline-block w-3.5 h-3.5 border border-slate-400 rounded-sm'></span></td></tr>"; }).join(""); }
+
+      var mcTb = document.getElementById("sdk-macet-tbody");
+      if (d.alertMacet.length === 0) { mcTb.innerHTML = "<tr><td colspan='4' class='p-3 text-center text-slate-400'>Tidak ada stok promo macet.</td></tr>"; }
+      else { mcTb.innerHTML = d.alertMacet.slice(0, 8).map(function(x) { return "<tr><td class='p-2 font-semibold text-slate-800 truncate max-w-[180px]'>" + x.barang + "</td><td class='p-2 text-center font-bold text-slate-600'>" + x.sold + "</td><td class='p-2 text-center font-black text-amber-700'>" + x.stock + "</td><td class='p-2 text-center'><span class='inline-block w-3.5 h-3.5 border border-slate-400 rounded-sm'></span></td></tr>"; }).join(""); }
+    }
+
+    function sortStoreData(key) {
+      if (currentTokoSort === key) tokoSortAsc = !tokoSortAsc; else { currentTokoSort = key; tokoSortAsc = false; }
+      globalStoreData.sort(function(a, b) {
+        var vA = a[key], vB = b[key];
+        if (typeof vA === "string") { vA = vA.toLowerCase(); vB = vB.toLowerCase(); }
+        if (vA < vB) return tokoSortAsc ? -1 : 1;
+        if (vA > vB) return tokoSortAsc ? 1 : -1;
+        return 0;
+      });
+      filterStoreTable();
+    }
+
+    function sortSpvData(key) {
+      if (spvSortKey === key) spvSortAsc = !spvSortAsc; else { spvSortKey = key; spvSortAsc = false; }
+      globalSpvData.sort(function(a, b) {
+        var vA = a[key], vB = b[key];
+        if (typeof vA === "string") { vA = vA.toLowerCase(); vB = vB.toLowerCase(); }
+        if (vA < vB) return spvSortAsc ? -1 : 1;
+        if (vA > vB) return spvSortAsc ? 1 : -1;
+        return 0;
+      });
+      renderSpvTable();
+    }
+
+    function filterStoreTable() {
+      var kw = (document.getElementById("store-search").value || "").toLowerCase();
+      var tb = document.getElementById("all-stores-tbody"); tb.innerHTML = "";
+      globalStoreData.filter(function(s) { return s.nama.toLowerCase().indexOf(kw) !== -1 || s.spv.toLowerCase().indexOf(kw) !== -1; }).forEach(function(s, i) {
+        var g = s.gr, p = g >= 0, bc = p ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800";
+        var momHtml = "";
+        if (!isMoMSafe) { momHtml = "<td class='p-3 text-center text-slate-400'>-</td>"; }
+        else { var m = s.mom, pm = m >= 0, mbc = pm ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"; var mTxt = s.mSales === 0 && s.sales > 0 ? "100%" : m.toFixed(1) + "%"; momHtml = "<td class='p-3 text-center'><span class='px-2 py-0.5 rounded text-[10px] font-bold " + mbc + "'>" + mTxt + "</span></td>"; }
+        var noteHtml = s.note ? "<br><span style='color:#64748b; font-size:9px; font-weight:600; font-style:italic; padding-top:2px; display:block;'>* " + s.note + "</span>" : "";
+        tb.innerHTML += "<tr class='hover:bg-slate-50 border-b border-slate-200 transition'><td class='p-3 text-slate-500 font-semibold'>" + (i + 1) + "</td><td class='p-3 font-bold text-slate-900'>" + s.nama + noteHtml + "</td><td class='p-3 text-slate-600'>" + s.spv + "</td><td class='p-3 text-right font-extrabold text-red-800'>" + formatRupiah(s.sales) + "</td><td class='p-3 text-right text-slate-500'>" + formatRupiah(s.target) + "</td><td class='p-3 text-center'><span class='px-2 py-0.5 rounded text-[10px] font-bold " + bc + "'>" + g.toFixed(1) + "%</span></td>" + momHtml + "<td class='p-3 text-right " + (s.shVal > 0 ? "text-red-700 font-bold" : "text-slate-400") + "'>" + formatRupiah(s.shVal) + "</td><td class='p-3 text-center text-slate-700 font-semibold'>" + (s.shPct > 0 ? s.shPct.toFixed(2) + "%" : "-") + "</td><td class='p-3 text-right " + (s.retVal > 0 ? "text-amber-700 font-bold" : "text-slate-400") + "'>" + formatRupiah(s.retVal || 0) + "</td><td class='p-3 text-center text-slate-700 font-semibold'>" + Number(s.discQty).toLocaleString("id-ID") + "</td><td class='p-3 text-center text-emerald-700 font-extrabold'>" + Number(s.stokPromo).toLocaleString("id-ID") + "</td><td class='p-3 text-right " + (s.discVal > 0 ? "text-fuchsia-700 font-bold" : "text-slate-400") + "'>" + formatRupiah(s.discVal || 0) + "</td><td class='p-3 text-right " + (s.expVal > 0 ? "text-teal-700 font-bold" : "text-slate-400") + "'>" + formatRupiah(s.expVal || 0) + "</td></tr>";
+      });
+    }
+
+    function renderSpvTable() {
+      var stb = document.getElementById("spv-table-body"); stb.innerHTML = "";
+      globalSpvData.forEach(function(s) {
+        var cg = s.yoy;
+        var momHtml = "";
+        if (!isMoMSafe) { momHtml = "<td class='p-3 text-center text-slate-400'>-</td>"; }
+        else { var m = s.mom, pm = m >= 0, mbc = pm ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800"; var mTxt = s.mSales === 0 && s.sales > 0 ? "100%" : m.toFixed(1) + "%"; momHtml = "<td class='p-3 text-center'><span class='px-2 py-0.5 rounded text-[10px] font-bold " + mbc + "'>" + mTxt + "</span></td>"; }
+        stb.innerHTML += "<tr class='hover:bg-slate-50 border-b border-slate-200 transition'><td class='p-3 font-bold text-slate-900'>" + s.nama + "</td><td class='p-3 text-right font-black text-red-800'>" + formatRupiah(s.sales) + "</td><td class='p-3 text-right text-slate-500'>" + formatRupiah(s.target) + "</td><td class='p-3 text-center'><span class='px-2 py-0.5 rounded text-[10px] font-bold " + (cg >= 0 ? "bg-emerald-100 text-emerald-800" : "bg-red-100 text-red-800") + "'>" + cg.toFixed(1) + "%</span></td>" + momHtml + "<td class='p-3 text-right text-slate-700 font-semibold'>" + Number(s.trans).toLocaleString("id-ID") + "</td><td class='p-3 text-right text-slate-700'>" + formatRupiah(s.atv) + "</td><td class='p-3 text-right font-bold text-amber-700'>" + formatRupiah(s.retVal || 0) + "</td><td class='p-3 text-center text-slate-700 font-semibold'>" + Number(s.discQty).toLocaleString("id-ID") + "</td><td class='p-3 text-right font-bold text-fuchsia-700'>" + formatRupiah(s.discVal || 0) + "</td><td class='p-3 text-right font-bold text-teal-700'>" + formatRupiah(s.expVal || 0) + "</td></tr>";
+      });
+    }
+  </script>
+</body>
+</html> 
